@@ -1,7 +1,7 @@
 import java.util.HashMap;
 import java.util.Scanner;
 // выполнить вывод подзадач + более красивый вывод
-// новая реализация меню + сохранение задач
+// новая реализация меню + сохранение задач проверка знаний
 public class Main {
     static int id = 1;
     static boolean programStatus = true;
