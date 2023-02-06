@@ -1,7 +1,8 @@
 import java.util.HashMap;
 import java.util.Scanner;
 // выполнить вывод подзадач + более красивый вывод
-// новая реализация меню + сохранение задач проверка знаний
+// новая реализация меню + сохранение задач
+// НОВАЯ СТРОЧКА ДЛЯ GITHUB
 public class Main {
     static int id = 1;
     static boolean programStatus = true;
