@@ -3,6 +3,7 @@ import java.util.Scanner;
 // выполнить вывод подзадач + более красивый вывод
 // новая реализация меню + сохранение задач
 // НОВАЯ СТРОЧКА ДЛЯ GITHUB
+// ЗАКРЕПЛЯЕМ МАТЕРИАЛ
 public class Main {
     static int id = 1;
     static boolean programStatus = true;
