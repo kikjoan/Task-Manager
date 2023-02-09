@@ -1,9 +1,9 @@
+import java.security.spec.ECField;
 import java.util.HashMap;
 import java.util.Scanner;
 // выполнить вывод подзадач + более красивый вывод
 // новая реализация меню + сохранение задач
-// НОВАЯ СТРОЧКА ДЛЯ GITHUB
-// ЗАКРЕПЛЯЕМ МАТЕРИАЛ
+
 public class Main {
     static int id = 1;
     static boolean programStatus = true;
@@ -116,11 +116,16 @@ class Task {
 
     @Override
     public String toString() {
-        return "Название задачи = '" + name + '\'' +
-                ", Описание задачи = '" + description + '\'' +
-                ", Выполнена = '" + isCompleted + '\'' +
-                ", id = '" + id + '\'' +
-                ", Задача с подзадачами = '" + isEpic + '\'';
+        if (!isEpic) {
+            return "Задача " + id + " = '" + name + '\'' +
+                    ", Описание = '" + description + '\'' +
+                    ", Выполнена = '" + isCompleted + '\'';
+        } else {
+            return "Задача " + id + "= '" + name + '\'' +
+                    ", Описание = '" + description + '\'' +
+                    ", Подзадачи '" + new Epic().subTasks.toString() +  '\'' + // сделать вывод эпиков и их статуса
+                    ", Выполнена = '" + isCompleted + '\'';
+        }
     }
 
     Task(){
@@ -128,8 +133,8 @@ class Task {
 }
 
 class Epic extends Task{
-    private HashMap<String,String> subTasks = new HashMap<>();
-    private boolean isEpic;
+    protected HashMap<String,String> subTasks = new HashMap<>();
+    //private boolean isEpic;
 
     Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks) {
         super(name, description, isCompleted, isEpic, id);
@@ -149,7 +154,7 @@ class Epic extends Task{
         description = scanner.nextLine();
         System.out.println("Введите подзадачу:");
         addSubTask();
-        System.out.println("Вы можете изменить подзадачу в меню задач!");
+        System.out.println("Вы можете изменить подзадачи в менеджере задач!");
         Main.tasks.put(id,(new Epic(name,description, false, true, id, subTasks)));
     }
 
@@ -157,7 +162,6 @@ class Epic extends Task{
         Scanner scanner = new Scanner(System.in);
         boolean cycle = true;
 
-        System.out.println("Введите название");
         while (cycle) {
             String name = scanner.nextLine();
             subTasks.put(name,"new");
