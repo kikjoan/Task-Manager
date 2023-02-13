@@ -92,7 +92,7 @@ class Task {
     private int id;
     private boolean isEpic;
 
-    Task(String name, String description, boolean isCompleted, boolean isEpic, int id) {
+    Task(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks) {
         this.name = name;
         this.description = description;
         this.isCompleted = isCompleted;
@@ -111,7 +111,7 @@ class Task {
         System.out.println("Введите описание: ");
         description = scanner.nextLine();
 
-        Main.tasks.put(id, (new Task(name, description, false, false, id)));
+        Main.tasks.put(id, (new Task(name, description, false, false, id, null)));
     }
 
     @Override
@@ -123,7 +123,7 @@ class Task {
         } else {
             return "Задача " + id + "= '" + name + '\'' +
                     ", Описание = '" + description + '\'' +
-                    ", Подзадачи '" + new Epic().subTasks.toString() +  '\'' + // сделать вывод эпиков и их статуса
+                    ", Подзадачи '" + new Epic().subTasks +  '\'' + // сделать вывод эпиков и их статуса
                     ", Выполнена = '" + isCompleted + '\'';
         }
     }
@@ -137,7 +137,7 @@ class Epic extends Task{
     //private boolean isEpic;
 
     Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks) {
-        super(name, description, isCompleted, isEpic, id);
+        super(name, description, isCompleted, isEpic, id, subTasks);
         this.subTasks = subTasks;
     }
 
