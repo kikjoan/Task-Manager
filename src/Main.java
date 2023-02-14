@@ -1,6 +1,5 @@
 import java.security.spec.ECField;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 // выполнить вывод подзадач + более красивый вывод
 // новая реализация меню + сохранение задач
 
@@ -15,31 +14,41 @@ public class Main {
 
     private static void getMainMenu() {
         Scanner scanner = new Scanner(System.in);
-        while (programStatus) {
-            System.out.println("1.Добавить новую задачу.");
-            System.out.println("2.Получить список задач");
-            System.out.println("3.Открыть менеджер задач");
-            System.out.println("4.Завершить программу");
-            int input = scanner.nextInt();
+        try {
+            while (programStatus) {
+                System.out.println("1.Добавить новую задачу.");
+                System.out.println("2.Получить список задач");
+                System.out.println("3.Открыть менеджер задач");
+                System.out.println("4.Завершить программу");
+                int input = scanner.nextInt();
 
-            switch (input) {
-                case 1 -> new Main().getTypeOfTask();   // Добавить новую задачу
-                case 2 -> new Main().getAllTasks();     //получить список задач
-                case 3 -> new Main().getTaskMenu();     // открыть менеджер задач
-                case 4 -> programStatus = false;        // закрыть прогу
+                switch (input) {
+                    case 1 -> new Main().getTypeOfTask();   // Добавить новую задачу
+                    case 2 -> new Main().getAllTasks();     //получить список задач
+                    case 3 -> new Main().getTaskMenu();     // открыть менеджер задач
+                    case 4 -> programStatus = false;        // закрыть прогу}
+                }
             }
+        } catch (InputMismatchException e) {
+            System.out.println("Ошибка ввода. Ожидаю выбор пункта \n");
+            getMainMenu();
         }
         scanner.close();
     }
 
      private void getTaskMenu() {
         boolean cycle = true;
-        Scanner scanner = new Scanner(System.in);
-         System.out.println("1.Удалить все задачи");
-         System.out.println("2.Получить задачу по id");
-         System.out.println("3.Обновить задачу");
-         System.out.println("4.Удалить задачу по идентификатору");
-         System.out.println("5.Вернуться в основоное меню");
+         Scanner scanner = new Scanner(System.in);
+        try {
+            System.out.println("1.Удалить все задачи");
+            System.out.println("2.Получить задачу по id");
+            System.out.println("3.Обновить задачу");
+            System.out.println("4.Удалить задачу по идентификатору");
+            System.out.println("5.Вернуться в основоное меню");
+        } catch (InputMismatchException e) {
+            System.out.println("Ошибка ввода. Ожидаю выбор пункта \n");
+        }
+
 
         while (cycle) {
             switch (scanner.nextInt()) {
@@ -56,22 +65,27 @@ public class Main {
         boolean cycle = true;
         Scanner scanner = new Scanner(System.in);
         System.out.println("Задача имеет подзадачи? y/n, для выхода exit");
-
-        while (cycle) {
-            switch (scanner.nextLine()) {
-                case "y":
-                    new Epic().setEpic();
-                    cycle = false;
-                    break;
-                case "n":
-                    new Task().setTask();
-                    cycle = false;
-                    break;
-                case "exit":
-                    cycle = false;
-                default:
-                    System.out.println("Некорректный ввод. Ожидаю ввод вида y/n");
+        try {
+            while (cycle) {
+                switch (scanner.nextLine()) {
+                    case "y":
+                        new Epic().setEpic();
+                        cycle = false;
+                        break;
+                    case "n":
+                        new Task().setTask();
+                        cycle = false;
+                        break;
+                    case "exit":
+                        cycle = false;
+                    default:
+                        System.out.println("Некорректный ввод. Ожидаю ввод вида y/n \n");
+                        getTypeOfTask();
+                }
             }
+        } catch (InputMismatchException e) {
+            System.out.println("Ожидаю y/n, для выхода exit");
+            getTypeOfTask();
         }
     }
 
@@ -123,7 +137,7 @@ class Task {
         } else {
             return "Задача " + id + "= '" + name + '\'' +
                     ", Описание = '" + description + '\'' +
-                    ", Подзадачи '" + new Epic().subTasks +  '\'' + // сделать вывод эпиков и их статуса
+                    ", Подзадачи '" +  +  '\'' + // сделать вывод эпиков и их статуса
                     ", Выполнена = '" + isCompleted + '\'';
         }
     }
@@ -133,12 +147,19 @@ class Task {
 }
 
 class Epic extends Task{
-    protected HashMap<String,String> subTasks = new HashMap<>();
-    //private boolean isEpic;
+    private HashMap<String,String> subTasks = new HashMap<>();
+    private String name;
+    private int id;
+    private String description;
+    private boolean isCompleted;
 
     Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks) {
         super(name, description, isCompleted, isEpic, id, subTasks);
         this.subTasks = subTasks;
+        this.name = name;
+        this.id = id;
+        this.description = description;
+        this.isCompleted = isCompleted;
     }
 
     protected void setEpic() {
@@ -164,17 +185,34 @@ class Epic extends Task{
 
         while (cycle) {
             String name = scanner.nextLine();
-            subTasks.put(name,"new");
+            subTasks.put(name,"false");
             System.out.println("Добавить еще одну подзадачу? y/n");
             switch (scanner.nextLine()) {
                 case "y" -> System.out.println("Введите название");
                 case "n" -> cycle = false;
-                default -> System.out.println("Некорректный ввод. Ожидаю y/n ");
+                default -> System.out.println("Некорректный ввод. Нажмите Enter");
             }
         }
     }
 
     Epic() {
+    }
+
+    @Override
+    public String toString() {
+        return "Задача " + id + "= '" + name + '\'' +
+                ", Описание = '" + description + '\'' +
+                ", Подзадачи : '" + getSubNames(subTasks) + '\'' + // сделать вывод эпиков и их статуса
+                ", Выполнена = '" + isCompleted + '\'';
+    }
+
+    private String getSubNames(HashMap<String, String> hashMap) {
+        ArrayList <String> subNames = new ArrayList<>();
+        for (Map.Entry<String, String> entry : hashMap.entrySet()) {
+            String nam = entry.getKey() + " - " + entry.getValue();
+            subNames.add(nam);
+        }
+        return subNames.toString();
     }
 }
 
