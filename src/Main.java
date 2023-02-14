@@ -1,7 +1,9 @@
-import java.security.spec.ECField;
-import java.util.*;
-// выполнить вывод подзадач + более красивый вывод
-// новая реализация меню + сохранение задач
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+// реализация менеджера задач + сохранение задач
 
 public class Main {
     static int id = 1;
@@ -26,7 +28,7 @@ public class Main {
                     case 1 -> new Main().getTypeOfTask();   // Добавить новую задачу
                     case 2 -> new Main().getAllTasks();     //получить список задач
                     case 3 -> new Main().getTaskMenu();     // открыть менеджер задач
-                    case 4 -> programStatus = false;        // закрыть прогу}
+                    case 4 -> programStatus = false;        // закрыть прогу
                 }
             }
         } catch (InputMismatchException e) {
@@ -36,24 +38,24 @@ public class Main {
         scanner.close();
     }
 
-     private void getTaskMenu() {
+    private void getTaskMenu() {
         boolean cycle = true;
-         Scanner scanner = new Scanner(System.in);
-        try {
+        Scanner scanner = new Scanner(System.in);
             System.out.println("1.Удалить все задачи");
             System.out.println("2.Получить задачу по id");
             System.out.println("3.Обновить задачу");
             System.out.println("4.Удалить задачу по идентификатору");
             System.out.println("5.Вернуться в основоное меню");
+            System.out.println("Ошибка ввода. Ожидаю выбор пункта \n");
+        try {
+            while (cycle) {
+                switch (scanner.nextInt()) {
+                    //case 1 -> ;
+                }
+            }
         } catch (InputMismatchException e) {
             System.out.println("Ошибка ввода. Ожидаю выбор пункта \n");
-        }
-
-
-        while (cycle) {
-            switch (scanner.nextInt()) {
-                //case 1 -> ;
-            }
+            getTaskMenu();
         }
     }
 
@@ -106,7 +108,7 @@ class Task {
     private int id;
     private boolean isEpic;
 
-    Task(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks) {
+    Task(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks){
         this.name = name;
         this.description = description;
         this.isCompleted = isCompleted;
@@ -130,16 +132,9 @@ class Task {
 
     @Override
     public String toString() {
-        if (!isEpic) {
-            return "Задача " + id + " = '" + name + '\'' +
-                    ", Описание = '" + description + '\'' +
-                    ", Выполнена = '" + isCompleted + '\'';
-        } else {
-            return "Задача " + id + "= '" + name + '\'' +
-                    ", Описание = '" + description + '\'' +
-                    ", Подзадачи '" +  +  '\'' + // сделать вывод эпиков и их статуса
-                    ", Выполнена = '" + isCompleted + '\'';
-        }
+        return "Задача " + id + " = '" + name + '\'' +
+                ", Описание = '" + description + '\'' +
+                ", Выполнена = '" + isCompleted + '\'';
     }
 
     Task(){
@@ -202,12 +197,12 @@ class Epic extends Task{
     public String toString() {
         return "Задача " + id + "= '" + name + '\'' +
                 ", Описание = '" + description + '\'' +
-                ", Подзадачи : '" + getSubNames(subTasks) + '\'' + // сделать вывод эпиков и их статуса
+                ", Подзадачи : " + getSubNames(subTasks) +
                 ", Выполнена = '" + isCompleted + '\'';
     }
 
     private String getSubNames(HashMap<String, String> hashMap) {
-        ArrayList <String> subNames = new ArrayList<>();
+        ArrayList<String> subNames = new ArrayList<>();
         for (Map.Entry<String, String> entry : hashMap.entrySet()) {
             String nam = entry.getKey() + " - " + entry.getValue();
             subNames.add(nam);
