@@ -1,9 +1,8 @@
-import java.util.Map;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 // реализация менеджера задач + сохранение задач
+// по возможности реализовать вывод подзадач без скобок
 
 public class Main {
     static int id = 1;
@@ -18,7 +17,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         try {
             while (programStatus) {
-                System.out.println("1.Добавить новую задачу.");
+                System.out.println("1.Добавить новую задачу");
                 System.out.println("2.Получить список задач");
                 System.out.println("3.Открыть менеджер задач");
                 System.out.println("4.Завершить программу");
@@ -41,12 +40,12 @@ public class Main {
     private void getTaskMenu() {
         boolean cycle = true;
         Scanner scanner = new Scanner(System.in);
-            System.out.println("1.Удалить все задачи");
-            System.out.println("2.Получить задачу по id");
-            System.out.println("3.Обновить задачу");
-            System.out.println("4.Удалить задачу по идентификатору");
-            System.out.println("5.Вернуться в основоное меню");
-            System.out.println("Ошибка ввода. Ожидаю выбор пункта \n");
+        System.out.println("1.Удалить все задачи");
+        System.out.println("2.Получить список задач");
+        System.out.println("3.Найти задачу по id");
+        System.out.println("4.Обновить задачу");
+        System.out.println("5.Удалить задачу по id");
+        System.out.println("6.Вернуться в основоное меню");
         try {
             while (cycle) {
                 switch (scanner.nextInt()) {
@@ -71,18 +70,17 @@ public class Main {
             while (cycle) {
                 switch (scanner.nextLine()) {
                     case "y":
-                        new Epic().setEpic();
                         cycle = false;
+                        new Epic().setEpic();
                         break;
                     case "n":
-                        new Task().setTask();
                         cycle = false;
+                        new Task().setTask();
                         break;
                     case "exit":
                         cycle = false;
                     default:
                         System.out.println("Некорректный ввод. Ожидаю ввод вида y/n \n");
-                        getTypeOfTask();
                 }
             }
         } catch (InputMismatchException e) {
@@ -96,19 +94,19 @@ public class Main {
             System.out.println("Нет задач! \n");
         }
         tasks.forEach((id, task) -> {
-            System.out.println(task);
+            System.out.println(task.toString());
         });
     }
 }
 
 class Task {
-    private String name;
-    private String description;
-    private boolean isCompleted;
-    private int id;
-    private boolean isEpic;
+    protected String name;
+    protected String description;
+    protected boolean isCompleted;
+    protected int id;
+    protected boolean isEpic;
 
-    Task(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks){
+    Task(String name, String description, boolean isCompleted, boolean isEpic, int id){
         this.name = name;
         this.description = description;
         this.isCompleted = isCompleted;
@@ -117,8 +115,6 @@ class Task {
     }
 
     protected void setTask() {
-        String name;
-        String description;
         int id = Main.setId();
         Scanner scanner = new Scanner(System.in);
 
@@ -126,8 +122,9 @@ class Task {
         name = scanner.nextLine();
         System.out.println("Введите описание: ");
         description = scanner.nextLine();
+        System.out.println();
 
-        Main.tasks.put(id, (new Task(name, description, false, false, id, null)));
+        Main.tasks.put(id, (new Task(name, description, false, false, id)));
     }
 
     @Override
@@ -143,26 +140,16 @@ class Task {
 
 class Epic extends Task{
     private HashMap<String,String> subTasks = new HashMap<>();
-    private String name;
-    private int id;
-    private String description;
-    private boolean isCompleted;
 
     Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks) {
-        super(name, description, isCompleted, isEpic, id, subTasks);
+        super(name, description, isCompleted, isEpic, id);
         this.subTasks = subTasks;
-        this.name = name;
-        this.id = id;
-        this.description = description;
-        this.isCompleted = isCompleted;
+
     }
 
     protected void setEpic() {
-        String name;
-        String description;
         int id = Main.setId();
         Scanner scanner = new Scanner(System.in);
-
 
         System.out.println("Введите название задачи: ");
         name = scanner.nextLine();
@@ -170,7 +157,7 @@ class Epic extends Task{
         description = scanner.nextLine();
         System.out.println("Введите подзадачу:");
         addSubTask();
-        System.out.println("Вы можете изменить подзадачи в менеджере задач!");
+        System.out.println("Вы можете изменить подзадачи в менеджере задач! \n");
         Main.tasks.put(id,(new Epic(name,description, false, true, id, subTasks)));
     }
 
@@ -197,24 +184,8 @@ class Epic extends Task{
     public String toString() {
         return "Задача " + id + "= '" + name + '\'' +
                 ", Описание = '" + description + '\'' +
-                ", Подзадачи : " + getSubNames(subTasks) +
+                ", Подзадачи : " + subTasks.toString() +
                 ", Выполнена = '" + isCompleted + '\'';
-    }
-
-    private String getSubNames(HashMap<String, String> hashMap) {
-        ArrayList<String> subNames = new ArrayList<>();
-        for (Map.Entry<String, String> entry : hashMap.entrySet()) {
-            String nam = entry.getKey() + " - " + entry.getValue();
-            subNames.add(nam);
-        }
-        return subNames.toString();
-    }
-}
-
-class Menu {
-    public static void getEpicMenu() {
-        System.out.println("1.Получение списка всех подзадач эпика");
-        System.out.println("2.Вернуться в меню задач");
     }
 }
 
