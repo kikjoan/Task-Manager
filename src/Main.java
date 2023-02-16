@@ -1,3 +1,4 @@
+import util.ManagerMenu;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -5,9 +6,9 @@ import java.util.Scanner;
 // по возможности реализовать вывод подзадач без скобок
 
 public class Main {
-    static int id = 1;
-    static boolean programStatus = true;
-    static HashMap<Integer, Object> tasks = new HashMap<>();
+    static protected int id = 1;
+    static private boolean programStatus = true;
+    static protected HashMap<Integer, Object> tasks = new HashMap<>();
 
     public static void main(String[] args) {
         getMainMenu();
@@ -21,9 +22,8 @@ public class Main {
                 System.out.println("2.Получить список задач");
                 System.out.println("3.Открыть менеджер задач");
                 System.out.println("4.Завершить программу");
-                int input = scanner.nextInt();
 
-                switch (input) {
+                switch (scanner.nextInt()) {
                     case 1 -> new Main().getTypeOfTask();   // Добавить новую задачу
                     case 2 -> new Main().getAllTasks();     //получить список задач
                     case 3 -> new Main().getTaskMenu();     // открыть менеджер задач
@@ -39,17 +39,19 @@ public class Main {
 
     private void getTaskMenu() {
         boolean cycle = true;
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("1.Удалить все задачи");
-        System.out.println("2.Получить список задач");
-        System.out.println("3.Найти задачу по id");
-        System.out.println("4.Обновить задачу");
-        System.out.println("5.Удалить задачу по id");
-        System.out.println("6.Вернуться в основоное меню");
+        Scanner scanner = new Scanner(System.in);;
         try {
             while (cycle) {
+                System.out.println("1.Удалить все задачи");
+                System.out.println("2.Получить список задач");
+                System.out.println("3.Найти задачу по id");
+                System.out.println("4.Обновить задачу");
+                System.out.println("5.Удалить задачу по id");
+                System.out.println("6.Вернуться в основоное меню");
                 switch (scanner.nextInt()) {
-                    //case 1 -> ;
+                    case 1 -> new ManagerMenu().checkToDelete(tasks);
+                    case 2 -> getAllTasks();
+                    case 6 -> cycle = false;
                 }
             }
         } catch (InputMismatchException e) {
@@ -80,7 +82,7 @@ public class Main {
                     case "exit":
                         cycle = false;
                     default:
-                        System.out.println("Некорректный ввод. Ожидаю ввод вида y/n \n");
+                        System.out.println("Некорректный ввод. Ожидаю ввод вида y/n");
                 }
             }
         } catch (InputMismatchException e) {
@@ -166,7 +168,6 @@ class Epic extends Task{
         boolean cycle = true;
 
         while (cycle) {
-            String name = scanner.nextLine();
             subTasks.put(name,"false");
             System.out.println("Добавить еще одну подзадачу? y/n");
             switch (scanner.nextLine()) {
