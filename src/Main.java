@@ -1,8 +1,7 @@
 import util.ManagerMenu;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Scanner;
-// реализация менеджера задач + сохранение задач
+
+import java.util.*;
+// реализовать выполнение подзадач + сохранение задач
 // по возможности реализовать вывод подзадач без скобок
 
 public class Main {
@@ -43,21 +42,42 @@ public class Main {
         try {
             while (cycle) {
                 System.out.println("1.Удалить все задачи");
-                System.out.println("2.Получить список задач");
-                System.out.println("3.Найти задачу по id");
-                System.out.println("4.Обновить задачу");
-                System.out.println("5.Удалить задачу по id");
-                System.out.println("6.Вернуться в основоное меню");
+                System.out.println("2.Найти задачу по id");
+                System.out.println("3.Обновить задачу");
+                System.out.println("4.Удалить задачу по id");
+                System.out.println("5.Вернуться в основоное меню");
                 switch (scanner.nextInt()) {
-                    case 1 -> new ManagerMenu().checkToDelete(tasks);
-                    case 2 -> getAllTasks();
-                    case 6 -> cycle = false;
+                    case 1 :
+                        new ManagerMenu().checkToDelete(tasks);
+                        break;
+                    case 2 :
+                        new ManagerMenu().getTaskById(tasks);
+                        break;
+                    case 3:
+                        System.out.println("Введите id задачи, которую нужно обновить: ");
+                        int taskId = scanner.nextInt();
+                        Task taskToUpdate = (Task) tasks.get(taskId);
+                        if (taskToUpdate != null) {
+                            System.out.println("Текущий статус задачи: " + taskToUpdate.isCompleted);
+                            System.out.println("Введите новый статус задачи (true/false): ");
+                            boolean newStatus = scanner.nextBoolean();
+                            taskToUpdate.setCompleted(newStatus);
+                        } else {
+                            System.out.println("Задачи с id " + taskId + " не найдено");
+                        }
+                        break;
+                    case 4 :
+                        new ManagerMenu().deleteTaskById(tasks);
+                        break;
+                    case 5 :
+                        cycle = false;
                 }
             }
         } catch (InputMismatchException e) {
             System.out.println("Ошибка ввода. Ожидаю выбор пункта \n");
             getTaskMenu();
         }
+
     }
 
     static Integer setId() {
@@ -108,7 +128,7 @@ class Task {
     protected int id;
     protected boolean isEpic;
 
-    Task(String name, String description, boolean isCompleted, boolean isEpic, int id){
+    Task(String name, String description, boolean isCompleted, boolean isEpic, Integer id){
         this.name = name;
         this.description = description;
         this.isCompleted = isCompleted;
@@ -137,6 +157,11 @@ class Task {
     }
 
     Task(){
+    }
+
+    protected void setCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
+        System.out.println("Задача " + id + " теперь " + (isCompleted ? "выполнена" : "не выполнена"));
     }
 }
 
@@ -168,7 +193,8 @@ class Epic extends Task{
         boolean cycle = true;
 
         while (cycle) {
-            subTasks.put(name,"false");
+            String nameOfSubTask = scanner.nextLine();
+            subTasks.put(nameOfSubTask,"false");
             System.out.println("Добавить еще одну подзадачу? y/n");
             switch (scanner.nextLine()) {
                 case "y" -> System.out.println("Введите название");
@@ -183,7 +209,7 @@ class Epic extends Task{
 
     @Override
     public String toString() {
-        return "Задача " + id + "= '" + name + '\'' +
+        return "Задача " + id + " = '" + name + '\'' +
                 ", Описание = '" + description + '\'' +
                 ", Подзадачи : " + subTasks.toString() +
                 ", Выполнена = '" + isCompleted + '\'';

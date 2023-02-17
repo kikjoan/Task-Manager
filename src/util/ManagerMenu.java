@@ -1,5 +1,6 @@
 package util;
 
+import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -21,6 +22,28 @@ public class ManagerMenu {
                 case "n" -> cycle = false;
                 default -> System.out.println("Ожидается y/n");
             }
+        }
+    }
+
+    public void getTaskById(HashMap<Integer,Object> tasks) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Введите id задачи: ");
+        int id = scanner.nextInt();
+        if (tasks.containsKey(id)) {
+            System.out.println(tasks.get(id).toString() + "\n");
+        } else {
+            System.out.println("Задача с таким id не найдена \n");
+        }
+    }
+
+    public void deleteTaskById(HashMap<Integer,Object> tasks) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Введите id задачи: ");
+        int id = scanner.nextInt();
+        if (tasks.containsKey(id)) {
+            tasks.remove(id);
+        } else {
+            System.out.println("Задача с таким id не найдена \n");
         }
     }
 }
