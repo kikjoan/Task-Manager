@@ -1,7 +1,6 @@
 import util.ManagerMenu;
-
 import java.util.*;
-// реализовать выполнение подзадач + сохранение задач
+// реализовать цикл выбора подзадач для изменений + сохранение задач
 // по возможности реализовать вывод подзадач без скобок
 
 public class Main {
@@ -47,30 +46,30 @@ public class Main {
                 System.out.println("4.Удалить задачу по id");
                 System.out.println("5.Вернуться в основоное меню");
                 switch (scanner.nextInt()) {
-                    case 1 :
-                        new ManagerMenu().checkToDelete(tasks);
-                        break;
-                    case 2 :
-                        new ManagerMenu().getTaskById(tasks);
-                        break;
-                    case 3:
+                    case 1 -> new ManagerMenu().checkToDelete(tasks);
+                    case 2 -> new ManagerMenu().getTaskById(tasks);
+                    case 3 -> {
                         System.out.println("Введите id задачи, которую нужно обновить: ");
+                        getAllTasks();
                         int taskId = scanner.nextInt();
                         Task taskToUpdate = (Task) tasks.get(taskId);
                         if (taskToUpdate != null) {
-                            System.out.println("Текущий статус задачи: " + taskToUpdate.isCompleted);
-                            System.out.println("Введите новый статус задачи (true/false): ");
-                            boolean newStatus = scanner.nextBoolean();
-                            taskToUpdate.setCompleted(newStatus);
+                            if (!taskToUpdate.isEpic){
+                                System.out.println("Текущий статус задачи: " + taskToUpdate.isCompleted);
+                                System.out.println("Введите новый статус задачи (true/false): ");
+                                boolean newStatus = scanner.nextBoolean();
+                                taskToUpdate.setCompleted(newStatus);
+                            } else {
+                                Epic epicToUpdate = (Epic) tasks.get(taskId);
+                                System.out.println("Текущий статус задачи: " + epicToUpdate.isCompleted);
+                                epicToUpdate.setCompleted();
+                            }
                         } else {
                             System.out.println("Задачи с id " + taskId + " не найдено");
                         }
-                        break;
-                    case 4 :
-                        new ManagerMenu().deleteTaskById(tasks);
-                        break;
-                    case 5 :
-                        cycle = false;
+                    }
+                    case 4 -> new ManagerMenu().deleteTaskById(tasks);
+                    case 5 -> cycle = false;
                 }
             }
         } catch (InputMismatchException e) {
@@ -161,7 +160,7 @@ class Task {
 
     protected void setCompleted(boolean isCompleted) {
         this.isCompleted = isCompleted;
-        System.out.println("Задача " + id + " теперь " + (isCompleted ? "выполнена" : "не выполнена"));
+        System.out.println("Задача " + id + " " + (isCompleted ? "выполнена" : "не выполнена"));
     }
 }
 
@@ -194,7 +193,7 @@ class Epic extends Task{
 
         while (cycle) {
             String nameOfSubTask = scanner.nextLine();
-            subTasks.put(nameOfSubTask,"false");
+            subTasks.put(nameOfSubTask,"new");
             System.out.println("Добавить еще одну подзадачу? y/n");
             switch (scanner.nextLine()) {
                 case "y" -> System.out.println("Введите название");
@@ -202,6 +201,60 @@ class Epic extends Task{
                 default -> System.out.println("Некорректный ввод. Нажмите Enter");
             }
         }
+    }
+    protected void setCompleted(){
+        boolean cycle = true;
+        boolean cycle2 = true;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Вот подзадачи данной задачи: " + subTasks);
+        if (subTasks.size() == 1) {
+            while (cycle) {
+                System.out.println("Введите новый статус для подзадачи. done/in progress");
+                String status = scanner.nextLine();
+                if (status.equals("done")) {
+                    for (String name: subTasks.keySet()) {
+                        subTasks.replace(name, "Done");
+                        cycle = false;
+                        System.out.println(subTasks + "\n");
+                    }
+                } else if (status.equals("in progress")) {
+                    for (String name: subTasks.keySet()) {
+                        subTasks.replace(name, "In_Progress");
+                        cycle = false;
+                        System.out.println(subTasks + "\n");
+                    }
+                } else {
+                    System.out.println("Неизвестная команда. Одидаю done/in progress \n");
+                }
+            }
+        } else {
+            while (cycle2){
+                System.out.println("Введите название подзадачи, которую нужно изменить");
+                String subTask = scanner.nextLine();
+                if (subTasks.containsKey(subTask)) {
+                    System.out.println("Введите новый статус для подзадачи. done/in progress");
+                    String status = scanner.nextLine();
+                    if (status.equals("done")) {
+                        subTasks.replace(subTask, "Done");
+                        cycle2 = false;
+                    } else if (status.equals("in progress")) {
+                        subTasks.replace(subTask, "In_Progress");
+                        cycle2 = false;
+                    } else {
+                        System.out.println("Неизвестная команда. Одидаю done/in progress \n");
+                    }
+                } else {
+                    System.out.println("Такой подзадачи нет, попробуйте вновь! \n");
+                }
+            }
+        }
+        int numberOfCompletedSubTasks = 0;
+        for (String name: subTasks.keySet()) {
+            if (subTasks.get(name).equals("Done")) {
+                numberOfCompletedSubTasks ++;
+            }
+        }
+        isCompleted = numberOfCompletedSubTasks == subTasks.size();
     }
 
     Epic() {
