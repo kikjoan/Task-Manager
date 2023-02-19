@@ -1,6 +1,5 @@
 package util;
 
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -41,6 +40,22 @@ public class ManagerMenu {
         System.out.println("Введите id задачи: ");
         int id = scanner.nextInt();
         if (tasks.containsKey(id)) {
+            System.out.println("Ты уверен, что хочешь удалить задачу " + tasks.get(id) + "? y/n");
+            boolean cycle = true;
+            while (cycle) {
+                String choice = scanner.nextLine();
+                switch (choice) {
+                    case "y" -> {
+                        tasks.remove(id);
+                        cycle = false;
+                    }
+                    case "n" -> {
+                        System.out.println("Задача " + tasks.get(id) + " не удалена");
+                        cycle = false;
+                    }
+                    default -> System.out.println("Неизвестная команда. Ожидаю y/n");
+                }
+            }
             tasks.remove(id);
         } else {
             System.out.println("Задача с таким id не найдена \n");

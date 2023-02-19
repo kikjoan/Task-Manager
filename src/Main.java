@@ -1,6 +1,6 @@
 import util.ManagerMenu;
 import java.util.*;
-// реализовать цикл выбора подзадач для изменений + сохранение задач
+// реализовать цикл выбора подзадач для изменения + сохранение задач
 // по возможности реализовать вывод подзадач без скобок
 
 public class Main {
@@ -37,7 +37,7 @@ public class Main {
 
     private void getTaskMenu() {
         boolean cycle = true;
-        Scanner scanner = new Scanner(System.in);;
+        Scanner scanner = new Scanner(System.in);
         try {
             while (cycle) {
                 System.out.println("1.Удалить все задачи");
@@ -114,9 +114,7 @@ public class Main {
         if (tasks.isEmpty()) {
             System.out.println("Нет задач! \n");
         }
-        tasks.forEach((id, task) -> {
-            System.out.println(task.toString());
-        });
+        tasks.forEach((id, task) -> System.out.println(task.toString()));
     }
 }
 
@@ -193,7 +191,18 @@ class Epic extends Task{
 
         while (cycle) {
             String nameOfSubTask = scanner.nextLine();
-            subTasks.put(nameOfSubTask,"new");
+            if (!subTasks.isEmpty()) {
+                for(String name : subTasks.keySet()) {
+                    if (name.equals(nameOfSubTask)) {
+                        System.out.println("Такая подзадача уже существует! \n");
+                    } else {
+                        subTasks.put(nameOfSubTask,"new");
+                        break;
+                    }
+                }
+            } else {
+                subTasks.put(nameOfSubTask,"new");
+            }
             System.out.println("Добавить еще одну подзадачу? y/n");
             switch (scanner.nextLine()) {
                 case "y" -> System.out.println("Введите название");
@@ -215,13 +224,13 @@ class Epic extends Task{
                     for (String name: subTasks.keySet()) {
                         subTasks.replace(name, "Done");
                         cycle = false;
-                        System.out.println(subTasks + "\n");
+                        System.out.println("Терерь позадача " + name + " имеет статус Done \n");
                     }
                 } else if (status.equals("in progress")) {
                     for (String name: subTasks.keySet()) {
                         subTasks.replace(name, "In_Progress");
                         cycle = false;
-                        System.out.println(subTasks + "\n");
+                        System.out.println("Терерь позадача " + name + " имеет статус In_Progress \n");
                     }
                 } else {
                     System.out.println("Неизвестная команда. Одидаю done/in progress \n");
@@ -236,16 +245,32 @@ class Epic extends Task{
                     String status = scanner.nextLine();
                     if (status.equals("done")) {
                         subTasks.replace(subTask, "Done");
-                        cycle2 = false;
                     } else if (status.equals("in progress")) {
                         subTasks.replace(subTask, "In_Progress");
-                        cycle2 = false;
                     } else {
                         System.out.println("Неизвестная команда. Одидаю done/in progress \n");
                     }
                 } else {
                     System.out.println("Такой подзадачи нет, попробуйте вновь! \n");
                 }
+                System.out.println("Изменить еще одну подзадачу? y/n");
+                String choice = scanner.nextLine();
+                boolean cycleOfChoice = true;
+                while (cycleOfChoice) {
+                    switch (choice) {
+                        case "y" -> {
+                            cycleOfChoice = false;
+                            System.out.println("\n");
+                        }
+                        case "n" -> {
+                            cycle2 = false;
+                            cycleOfChoice = false;
+                            System.out.println("\n");
+                        }
+                        default -> System.out.println("Неизвестная команда. Ожидаю y/n \n");
+                    }
+                }
+
             }
         }
         int numberOfCompletedSubTasks = 0;
