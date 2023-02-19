@@ -1,6 +1,7 @@
 import util.ManagerMenu;
+
+import java.io.*;
 import java.util.*;
-// реализовать цикл выбора подзадач для изменения + сохранение задач
 // по возможности реализовать вывод подзадач без скобок
 
 public class Main {
@@ -9,7 +10,27 @@ public class Main {
     static protected HashMap<Integer, Object> tasks = new HashMap<>();
 
     public static void main(String[] args) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("tasks.txt"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] task = line.split(":");
+                tasks.put(Integer.parseInt(task[0]), task[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         getMainMenu();
+        try {
+            FileWriter writer = new FileWriter("tasks.txt");
+            for (Integer key : tasks.keySet()) {
+                String line = key + ":" + tasks.get(key) + "\n";
+                writer.write(line);
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void getMainMenu() {
@@ -80,7 +101,15 @@ public class Main {
     }
 
     static Integer setId() {
-        return id++;
+        boolean cycle = true;
+        while (cycle){
+            if (tasks.containsKey(id)){
+                id++;
+            } else {
+                cycle = false;
+            }
+        }
+        return id;
     }
 
     private void getTypeOfTask() {
@@ -90,18 +119,16 @@ public class Main {
         try {
             while (cycle) {
                 switch (scanner.nextLine()) {
-                    case "y":
+                    case "y" -> {
                         cycle = false;
                         new Epic().setEpic();
-                        break;
-                    case "n":
+                    }
+                    case "n" -> {
                         cycle = false;
                         new Task().setTask();
-                        break;
-                    case "exit":
-                        cycle = false;
-                    default:
-                        System.out.println("Некорректный ввод. Ожидаю ввод вида y/n");
+                    }
+                    case "exit" -> cycle = false;
+                    default -> System.out.println("Некорректный ввод. Ожидаю ввод вида y/n");
                 }
             }
         } catch (InputMismatchException e) {
@@ -289,7 +316,7 @@ class Epic extends Task{
     public String toString() {
         return "Задача " + id + " = '" + name + '\'' +
                 ", Описание = '" + description + '\'' +
-                ", Подзадачи : " + subTasks.toString() +
+                ", Подзадачи = " + subTasks.toString() +
                 ", Выполнена = '" + isCompleted + '\'';
     }
 }

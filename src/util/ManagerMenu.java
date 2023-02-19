@@ -37,26 +37,27 @@ public class ManagerMenu {
 
     public void deleteTaskById(HashMap<Integer,Object> tasks) {
         Scanner scanner = new Scanner(System.in);
+        Scanner scanner1 = new Scanner(System.in);
         System.out.println("Введите id задачи: ");
         int id = scanner.nextInt();
         if (tasks.containsKey(id)) {
             System.out.println("Ты уверен, что хочешь удалить задачу " + tasks.get(id) + "? y/n");
             boolean cycle = true;
             while (cycle) {
-                String choice = scanner.nextLine();
+                String choice = scanner1.nextLine();
                 switch (choice) {
                     case "y" -> {
+                        System.out.println("Задача " + tasks.get(id) + " удалена \n");
                         tasks.remove(id);
                         cycle = false;
                     }
                     case "n" -> {
-                        System.out.println("Задача " + tasks.get(id) + " не удалена");
+                        System.out.println("Задача " + tasks.get(id) + " не удалена \n");
                         cycle = false;
                     }
                     default -> System.out.println("Неизвестная команда. Ожидаю y/n");
                 }
             }
-            tasks.remove(id);
         } else {
             System.out.println("Задача с таким id не найдена \n");
         }
