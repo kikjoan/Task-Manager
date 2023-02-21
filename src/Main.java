@@ -15,7 +15,26 @@ public class Main {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] task = line.split(":");
-                tasks.put(Integer.parseInt(task[0]), task[1]);
+                char c = task[1].charAt(task[1].length() - 1);
+                char g = '}';
+                if (g == c){
+                    HashMap<String,String> hashMap = new HashMap<>();
+                    String [] strings = task[1].split("`");
+                    strings[5] = strings[5].substring(1,strings[5].length() - 1);
+                    String[] subTasks = strings[5].split(", ");
+                    for(String tasks : subTasks) {
+                       String[] t = tasks.split("=");
+                       hashMap.put(t[0],t[1]);
+                    }
+                    Epic epic = new Epic(strings[0],strings[1],Boolean.parseBoolean(strings[2]),
+                            Boolean.parseBoolean(strings[3]), Integer.parseInt(strings[4]),hashMap);
+                    tasks.put(Integer.parseInt(task[0]), epic);
+                } else {
+                    String [] strings = task[1].split("`");
+                    Task tasq = new Task(strings[0],strings[1],Boolean.parseBoolean(strings[2]),
+                            Boolean.parseBoolean(strings[3]), Integer.parseInt(strings[4]));
+                    tasks.put(Integer.parseInt(task[0]), tasq);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -24,8 +43,17 @@ public class Main {
         try {
             FileWriter writer = new FileWriter("tasks.txt");
             for (Integer key : tasks.keySet()) {
-                String line = key + ":" + tasks.get(key) + "\n";
-                writer.write(line);
+                Task task = (Task) tasks.get(key);
+                if (!task.isEpic) {
+                    String line = key + ":" + task.name + "`" + task.description + "`" + task.isCompleted +
+                            "`" + task.isEpic + "`" + task.id + "\n";
+                    writer.write(line);
+                } else {
+                    Epic epic = (Epic) tasks.get(key);
+                    String line = key + ":" + epic.name + "`" + epic.description + "`" + epic.isCompleted +
+                            "`" + epic.isEpic + "`" + epic.id + "`" + epic.subTasks + "\n";
+                    writer.write(line);
+                }
             }
             writer.close();
         } catch (IOException e) {
@@ -73,7 +101,7 @@ public class Main {
                         System.out.println("Введите id задачи, которую нужно обновить: ");
                         getAllTasks();
                         int taskId = scanner.nextInt();
-                        Task taskToUpdate = (Task) tasks.get(taskId);
+                        Task taskToUpdate = (Task) (tasks.get(taskId));
                         if (taskToUpdate != null) {
                             if (!taskToUpdate.isEpic){
                                 System.out.println("Текущий статус задачи: " + taskToUpdate.isCompleted);
@@ -141,7 +169,9 @@ public class Main {
         if (tasks.isEmpty()) {
             System.out.println("Нет задач! \n");
         }
-        tasks.forEach((id, task) -> System.out.println(task.toString()));
+        tasks.forEach((id, task) -> {
+            System.out.println(task.toString());
+        });
     }
 }
 
@@ -185,12 +215,12 @@ class Task {
 
     protected void setCompleted(boolean isCompleted) {
         this.isCompleted = isCompleted;
-        System.out.println("Задача " + id + " " + (isCompleted ? "выполнена" : "не выполнена"));
+        System.out.println("Задача " + id + " " + (isCompleted ? "выполнена \n" : "не выполнена \n"));
     }
 }
 
 class Epic extends Task{
-    private HashMap<String,String> subTasks = new HashMap<>();
+    protected HashMap<String,String> subTasks = new HashMap<>();
 
     Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, HashMap<String,String> subTasks) {
         super(name, description, isCompleted, isEpic, id);
