@@ -1,4 +1,4 @@
 # Task-Manager
 Типичный менеджер задач с возможностью сохранения в файл на java
 
-Задание из yandex.praktikum, спринт 2
+Задание из yandex praktikum, спринт 2
