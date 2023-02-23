@@ -311,18 +311,16 @@ class Epic extends Task{
                     System.out.println("Такой подзадачи нет, попробуйте вновь! \n");
                 }
                 System.out.println("Изменить еще одну подзадачу? y/n");
-                String choice = scanner.nextLine();
                 boolean cycleOfChoice = true;
                 while (cycleOfChoice) {
+                    String choice = scanner.nextLine();
                     switch (choice) {
                         case "y" -> {
                             cycleOfChoice = false;
-                            System.out.println("\n");
                         }
                         case "n" -> {
                             cycle2 = false;
                             cycleOfChoice = false;
-                            System.out.println("\n");
                         }
                         default -> System.out.println("Неизвестная команда. Ожидаю y/n \n");
                     }
