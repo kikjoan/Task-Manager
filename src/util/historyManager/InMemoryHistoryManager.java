@@ -1,4 +1,5 @@
 package util.historyManager;
 
-public class InMemoryHistoryManager {
+public class InMemoryHistoryManager extends HistoryManager{
+
 }

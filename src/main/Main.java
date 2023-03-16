@@ -1,12 +1,11 @@
 package main;
 
-import util.TaskProgress;
 import util.taskManager.InMemoryTaskManager;
 import util.taskManager.Managers;
 
 import java.io.*;
 import java.util.*;
-// по возможности реализовать вывод подзадач без скобок
+// реализовать сохранение, добавить возможность удалять и добавлять подзадачи, реализовать историю
 
 public class Main {
     static protected int id = 1;
@@ -54,25 +53,25 @@ public class Main {
 //            e.printStackTrace();
 //        }
         getMainMenu();
-        try {
-            FileWriter writer = new FileWriter("tasks.txt");
-            for (Integer key : tasks.keySet()) {
-                Task task = (Task) tasks.get(key);
-                if (!task.isEpic) {
-                    String line = key + ":" + task.name + "`" + task.description + "`" + task.isCompleted +
-                            "`" + task.isEpic + "`" + task.id + "\n";
-                    writer.write(line);
-                } else {
-                    Epic epic = (Epic) tasks.get(key);
-                    String line = key + ":" + epic.name + "`" + epic.description + "`" + epic.isCompleted +
-                            "`" + epic.isEpic + "`" + epic.id + "`" + epic.subTasks + "\n";
-                    writer.write(line);
-                }
-            }
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            FileWriter writer = new FileWriter("tasks.txt");
+//            for (Integer key : tasks.keySet()) {
+//                Task task = (Task) tasks.get(key);
+//                if (!task.isEpic) {
+//                    String line = key + ":" + task.name + "`" + task.description + "`" + task.isCompleted +
+//                            "`" + task.isEpic + "`" + task.id + "\n";
+//                    writer.write(line);
+//                } else {
+//                    Epic epic = (Epic) tasks.get(key);
+//                    String line = key + ":" + epic.name + "`" + epic.description + "`" + epic.isCompleted +
+//                            "`" + epic.isEpic + "`" + epic.id + "`" + epic.subTasks + "\n";
+//                    writer.write(line);
+//                }
+//            }
+//            writer.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private static void getMainMenu() {
@@ -106,15 +105,17 @@ public class Main {
             while (cycle) {
                 System.out.println("1.Удалить все задачи");
                 System.out.println("2.Найти задачу по id");
-                System.out.println("3.Обновить задачу");
+                System.out.println("3.Обновить статус задачи");
                 System.out.println("4.Удалить задачу по id");
-                System.out.println("5.Вернуться в основоное меню");
+                System.out.println("5.Изиенить, удалить подзадачу");
+                System.out.println("6.Вернуться в основоное меню");
                 switch (scanner.nextInt()) {
                     case 1 -> defaultTaskManager.getDefault().deleteAllTask(tasks);
                     case 2 -> defaultTaskManager.getDefault().getTaskById(tasks);
-                    case 3 -> defaultTaskManager.getDefault().updateTask(tasks);
+                    case 3 -> defaultTaskManager.getDefault().updateTaskStatus(tasks);
                     case 4 -> defaultTaskManager.getDefault().deleteTaskById(tasks);
-                    case 5 -> cycle = false;
+                    case 5 -> defaultTaskManager.getDefault().editSubTasks(tasks);
+                    case 6 -> cycle = false;
                 }
             }
         } catch (InputMismatchException e) {
@@ -135,7 +136,5 @@ public class Main {
         }
         return id;
     }
-
-
 }
 

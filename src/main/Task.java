@@ -9,7 +9,7 @@ public class Task {
     protected int id;
     protected boolean isEpic;
 
-    Task(String name, String description, boolean isCompleted, boolean isEpic, Integer id) {
+    Task(String name, String description, boolean isCompleted, boolean isEpic, int id) {
         this.name = name;
         this.description = description;
         this.isCompleted = isCompleted;
@@ -30,6 +30,13 @@ public class Task {
         Main.tasks.put(id, (new Task(name, description, false, false, id)));
     }
 
+    public void setCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
+        System.out.println("Задача " + id + " " + (isCompleted ? "выполнена \n" : "не выполнена \n"));
+    }
+
+    public Task() {}
+
     public boolean isEpic() {
         return isEpic;
     }
@@ -38,12 +45,9 @@ public class Task {
         return isCompleted;
     }
 
-    public void setCompleted(boolean isCompleted) {
-        this.isCompleted = isCompleted;
-        System.out.println("Задача " + id + " " + (isCompleted ? "выполнена \n" : "не выполнена \n"));
+    public String getName() {
+        return name;
     }
-
-    public Task() {}
 
     @Override
     public String toString() {

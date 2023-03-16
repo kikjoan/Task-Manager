@@ -6,7 +6,11 @@ import java.util.Scanner;
 
 public class SubTask extends Task{
 
-     protected void setSubTasks(HashMap<String, TaskProgress> subTasks) {
+    SubTask(String name, String description, boolean isCompleted, boolean isEpic, int id) {
+        super(name, description, isCompleted, isEpic, id);
+    }
+
+    public void setSubTasks() {
 
         Scanner scanner = new Scanner(System.in);
         boolean cycle = true;
@@ -14,17 +18,17 @@ public class SubTask extends Task{
         System.out.println("Введи название подзадачи");
         while (cycle) {
             String nameOfSubTask = scanner.nextLine();
-            if (!(subTasks.isEmpty())) {
-                for (String name : subTasks.keySet()) {
+            if (!(subTaskHash.isEmpty())) {
+                for (String name : subTaskHash.keySet()) {
                     if (name.equals(nameOfSubTask)) {
                         System.out.println("Такая подзадача уже существует! \n");
                     } else {
-                        subTasks.put(nameOfSubTask, TaskProgress.NEW);
+                        subTaskHash.put(nameOfSubTask, TaskProgress.NEW);
                         break;
                     }
                 }
             } else {
-                subTasks.put(nameOfSubTask, TaskProgress.NEW);
+                subTaskHash.put(nameOfSubTask, TaskProgress.NEW);
             }
             System.out.println("Добавить еще одну подзадачу? y/n");
             switch (scanner.nextLine()) {
@@ -36,5 +40,16 @@ public class SubTask extends Task{
                 }
             }
         }
+    }
+
+    public SubTask() {}
+
+    @Override
+    public String toString() {
+         return subTaskHash.toString();
+    }
+
+    public HashMap<String, TaskProgress> getSubTaskHash() {
+        return subTaskHash;
     }
 }

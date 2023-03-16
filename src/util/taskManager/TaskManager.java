@@ -9,7 +9,7 @@ interface TaskManager {
     void getTaskById(HashMap<Integer, Object> tasks);
 
     void deleteAllTask(HashMap<Integer, Object> tasks);
-    void updateTask(HashMap<Integer, Object> tasks);
+    void updateTaskStatus(HashMap<Integer, Object> tasks);
     void deleteTaskById(HashMap<Integer, Object> tasks);
 
 }

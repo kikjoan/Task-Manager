@@ -1,16 +1,14 @@
 package main;
 
-import util.TaskProgress;
-
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Epic extends Task {
 
-    public HashMap<String, TaskProgress> subTasks = new HashMap<>();
+    List<SubTask> subTasks = new ArrayList<>();
 
-    public Epic(String name, String description, boolean isCompleted, boolean isEpic, int id,
-                HashMap<String, TaskProgress> subTasks) {
+    public Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, List<SubTask> subTasks) {
         super(name, description, isCompleted, isEpic, id);
         this.subTasks = subTasks;
     }
@@ -20,7 +18,6 @@ public class Epic extends Task {
 
     public void setEpic() {
 
-        SubTask subTask = new SubTask();
         int id = Main.setId();
         Scanner scanner = new Scanner(System.in);
 
@@ -28,9 +25,9 @@ public class Epic extends Task {
         name = scanner.nextLine();
         System.out.println("Введите описание: ");
         description = scanner.nextLine();
-        subTask.setSubTasks(subTasks);
+        subTask.setSubTasks();
 
-        Main.tasks.put(id, (new Epic(name, description, false, true, id, subTasks)));
+        Main.tasks.put(id, (new Epic(name, description, false, true, id, subTask)));
     }
 
     @Override
@@ -39,10 +36,10 @@ public class Epic extends Task {
                 "ID - '" + id + "'; " +
                 "Описание - '" + description + "'; " +
                 "Выполнена - '" + isCompleted + "'; " +
-                "Подзадачи - '" + subTasks.toString() + "'";
+                "Подзадачи - '" + subTask.toString() + "'";
     }
 
-    public HashMap<String, TaskProgress> getSubTasks() {
+    public SubTask getSubTask() {
         return subTasks;
     }
 }
