@@ -56,4 +56,9 @@ public class Task {
                 "Описание - '" + description + "'; " +
                 "Выполнена - '" + isCompleted + "'";
     }
+
+    protected Task(String name, int id){
+        this.name = name;
+        this.id = id;
+    }
 }

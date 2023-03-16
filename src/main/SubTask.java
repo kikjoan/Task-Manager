@@ -6,11 +6,11 @@ import java.util.Scanner;
 
 public class SubTask extends Task{
 
-    SubTask(String name, String description, boolean isCompleted, boolean isEpic, int id) {
-        super(name, description, isCompleted, isEpic, id);
+    SubTask(String name, int id) {
+        super(name, id);
     }
 
-    public void setSubTasks() {
+    public SubTask setSubTasks() {
 
         Scanner scanner = new Scanner(System.in);
         boolean cycle = true;
@@ -40,6 +40,8 @@ public class SubTask extends Task{
                 }
             }
         }
+
+        return
     }
 
     public SubTask() {}

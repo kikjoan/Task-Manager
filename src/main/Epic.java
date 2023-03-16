@@ -6,8 +6,6 @@ import java.util.Scanner;
 
 public class Epic extends Task {
 
-    List<SubTask> subTasks = new ArrayList<>();
-
     public Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, List<SubTask> subTasks) {
         super(name, description, isCompleted, isEpic, id);
         this.subTasks = subTasks;
@@ -27,7 +25,7 @@ public class Epic extends Task {
         description = scanner.nextLine();
         subTask.setSubTasks();
 
-        Main.tasks.put(id, (new Epic(name, description, false, true, id, subTask)));
+        Main.tasks.put(id, (new Epic(name, description, false, true, id, subTasks)));
     }
 
     @Override
