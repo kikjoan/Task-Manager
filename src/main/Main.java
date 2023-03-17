@@ -97,7 +97,7 @@ public class Main {
         scanner.close();
     }
 
-    private void getTaskMenu() {
+    public void getTaskMenu() {
         boolean cycle = true;
         Scanner scanner = new Scanner(System.in);
         Managers<InMemoryTaskManager> defaultTaskManager = new Managers<>();
@@ -122,7 +122,6 @@ public class Main {
             System.out.println("Ошибка ввода. Ожидаю выбор пункта \n");
             getTaskMenu();
         }
-
     }
 
     static Integer setId() {

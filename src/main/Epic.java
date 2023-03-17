@@ -6,12 +6,12 @@ import java.util.Scanner;
 
 public class Epic extends Task {
 
-    public Epic(String name, String description, boolean isCompleted, boolean isEpic, int id, List<SubTask> subTasks) {
-        super(name, description, isCompleted, isEpic, id);
-        this.subTasks = subTasks;
-    }
+    List<SubTask> subTasksList = new ArrayList<>();
 
-    public Epic() {
+    public Epic(String name, String description, boolean isCompleted, boolean isEpic, int id,
+                List<SubTask> subTasksList) {
+        super(name, description, isCompleted, isEpic, id);
+        this.subTasksList = subTasksList;
     }
 
     public void setEpic() {
@@ -23,9 +23,36 @@ public class Epic extends Task {
         name = scanner.nextLine();
         System.out.println("Введите описание: ");
         description = scanner.nextLine();
-        subTask.setSubTasks();
 
-        Main.tasks.put(id, (new Epic(name, description, false, true, id, subTasks)));
+        Main.tasks.put(id, (new Epic(name, description, false, true, id, subTasksList)));
+    }
+
+    public void addSubTask() {
+        Scanner scanner = new Scanner(System.in);
+
+        subTasksList.add(new SubTask().setSubTasks());
+
+        boolean cycle = true;
+        while (cycle) {
+            System.out.println("Добавить еще одну подзадачу? y/n");
+            switch (scanner.nextLine()) {
+                case "y" -> subTasksList.add(new SubTask().setSubTasks());
+                case "n" -> cycle = false;
+                default -> {
+                    System.out.println("Некорректный ввод. Добавть подзадачу можно в менеджере задач");
+                    cycle =false;
+                }
+            }
+            System.out.println("Эпик - " + getName() + " записан с позадачами :" + getNamesOfSubTasks().toString());
+        }
+    }
+
+    public List<String> getNamesOfSubTasks() {
+        List<String> names = new ArrayList<>();
+        for (SubTask subTask : subTasksList) {
+            names.add(subTask.getName());
+        }
+        return names;
     }
 
     @Override
@@ -34,10 +61,18 @@ public class Epic extends Task {
                 "ID - '" + id + "'; " +
                 "Описание - '" + description + "'; " +
                 "Выполнена - '" + isCompleted + "'; " +
-                "Подзадачи - '" + subTask.toString() + "'";
+                "Подзадачи - '" + getNamesOfSubTasks().toString() + "'";
     }
 
-    public SubTask getSubTask() {
-        return subTasks;
+    public List<SubTask> getSubTask() {
+        return subTasksList;
+    }
+
+    @Override
+    public void setCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
+    }
+
+    public Epic() {
     }
 }

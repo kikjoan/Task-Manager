@@ -121,81 +121,60 @@ public class InMemoryTaskManager implements TaskManager{
             } else {
                 Epic epicToUpdate = (Epic) tasks.get(taskId);
                 System.out.println("Текущий статус задачи: " + epicToUpdate.isCompleted());
-                setCompleted(epicToUpdate.getSubTask(), epicToUpdate);
+                setCompleted(epicToUpdate);
             }
         } else {
             System.out.println("Задачи с id " + taskId + " не найдено");
         }
     }
 
-    protected void setCompleted(SubTask subTask, Epic epic) {
+    protected void setCompleted(Epic epic) {
 
         boolean cycle = true;
-        boolean cycle2 = true;
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Вот подзадачи данной задачи: " + subTask.getSubTaskHash());
-        if (subTask.getSubTaskHash().size() == 1) {
-            while (cycle) {
-                System.out.println("Введите новый статус для подзадачи. done/in progress");
-                String status = scanner.nextLine();
-                if (status.equals("done")) {
-                    for (String name : subTask.getSubTaskHash().keySet()) {
-                        subTask.getSubTaskHash().replace(name, TaskProgress.DONE);
-                        cycle = false;
-                        System.out.println("Терерь позадача " + name + " имеет статус Done \n");
-                    }
-                } else if (status.equals("in progress")) {
-                    for (String name : subTask.getSubTaskHash().keySet()) {
-                        subTask.getSubTaskHash().replace(name, TaskProgress.IN_PROGRESS);
-                        cycle = false;
-                        System.out.println("Терерь позадача " + name + " имеет статус In_Progress \n");
-                    }
-                } else {
-                    System.out.println("Неизвестная команда. Одидаю done/in progress \n");
-                }
-            }
-        } else {
-            while (cycle2) {
-                System.out.println("Введите название подзадачи, которую нужно изменить");
-                String nameOfSubTask = scanner.nextLine();
-                if (subTask.getSubTaskHash().containsKey(nameOfSubTask)) {
+        System.out.println("Вот подзадачи данной задачи: " + epic.getNamesOfSubTasks().toString());
+        while (cycle) {
+            System.out.println("Введите название подзадачи, которую нужно изменить");
+            String nameOfSubTask = scanner.nextLine();
+            for(SubTask subTask : epic.getSubTask()) {
+                if (subTask.getName().equals(nameOfSubTask)) {
                     System.out.println("Введите новый статус для подзадачи. done/in progress");
                     String status = scanner.nextLine();
                     if (status.equals("done")) {
-                        subTask.getSubTaskHash().replace(nameOfSubTask, TaskProgress.DONE);
+                        subTask.setTaskProgress(TaskProgress.DONE);
+                        System.out.println("Терерь позадача " + subTask.getName() + " имеет статус Done \n");
                     } else if (status.equals("in progress")) {
-                        subTask.getSubTaskHash().replace(nameOfSubTask, TaskProgress.IN_PROGRESS);
-                    } else {
+                        subTask.setTaskProgress(TaskProgress.IN_PROGRESS);
+                        System.out.println("Терерь позадача " + subTask.getName() + " имеет статус In_Progress \n");
+                        } else {
                         System.out.println("Неизвестная команда. Одидаю done/in progress \n");
                     }
                 } else {
                     System.out.println("Такой подзадачи нет, попробуйте вновь! \n");
                 }
-                System.out.println("Изменить еще одну подзадачу? y/n");
-                boolean cycleOfChoice = true;
-                while (cycleOfChoice) {
-                    String choice = scanner.nextLine();
-                    switch (choice) {
-                        case "y" -> {
-                            cycleOfChoice = false;
-                        }
-                        case "n" -> {
-                            cycle2 = false;
-                            cycleOfChoice = false;
-                        }
-                        default -> System.out.println("Неизвестная команда. Ожидаю y/n \n");
+            }
+
+            System.out.println("Изменить еще одну подзадачу? y/n");
+            boolean cycleOfChoice = true;
+            while (cycleOfChoice) {
+                String choice = scanner.nextLine();
+                switch (choice) {
+                    case "y" -> cycleOfChoice = false;
+                    case "n" -> {
+                        cycle = false;
+                        cycleOfChoice = false;
                     }
+                    default -> System.out.println("Неизвестная команда. Ожидаю y/n \n");
                 }
             }
         }
-
         int numberOfCompletedSubTasks = 0;
-        for (String name : subTask.getSubTaskHash().keySet()) {
-            if (subTask.getSubTaskHash().get(name).equals(TaskProgress.DONE)) {
+        for (SubTask subTask : epic.getSubTask()) {
+            if (subTask.getTaskProgress().equals(TaskProgress.DONE)) {
                 numberOfCompletedSubTasks++;
             }
         }
-        boolean setCompleted = numberOfCompletedSubTasks == subTask.getSubTaskHash().size();
+        boolean setCompleted = numberOfCompletedSubTasks == epic.getSubTask().size();
         epic.setCompleted(setCompleted);
     }
 
@@ -207,7 +186,6 @@ public class InMemoryTaskManager implements TaskManager{
         int taskId = scanner.nextInt();
 
         Epic taskToUpdate = (Epic) tasks.get(taskId);
-        SubTask subTask = taskToUpdate.getSubTask();
 
         System.out.println("Выберете действие");
         System.out.println("1. Добавить подзадачу");
@@ -218,34 +196,37 @@ public class InMemoryTaskManager implements TaskManager{
         int choice = scanner.nextInt();
         String returnStringScanner = scanner.nextLine();
         switch (choice) {
-            case 1 -> subTask.setSubTasks();
+            case 1 -> taskToUpdate.addSubTask();
             case 2 -> {
                 boolean cycle = true;
 
                 while (cycle) {
                     System.out.println("Введите название подзадачи, которую хотите удалить");
-                    System.out.println(subTask.getSubTaskHash().toString());
+                    System.out.println(taskToUpdate.getNamesOfSubTasks().toString());
+
                     String nameOfSubTask = scanner.nextLine();
+                    for (SubTask subTask : taskToUpdate.getSubTask()) {
+                        if() {
+                            System.out.println("Подзадача одна и удалить ее нельзя XD");
+                        } else  if (subTask.getSubTaskHash().containsKey(nameOfSubTask)) {
+                            subTask.getSubTaskHash().remove(nameOfSubTask);
+                        } else {
+                            System.out.println("Такой подзадачи нет. Возвращаемся в начало");
+                        }
 
-                    if(subTask.getSubTaskHash().containsKey(nameOfSubTask) && subTask.getSubTaskHash().size() == 1) {
-                        System.out.println("Подзадача одна и удалить ее нельзя XD");
-                    } else  if (subTask.getSubTaskHash().containsKey(nameOfSubTask)) {
-                        subTask.getSubTaskHash().remove(nameOfSubTask);
-                    } else {
-                        System.out.println("Такой подзадачи нет. Возвращаемся в начало");
-                    }
+                        System.out.println("Удалить еще одну позадачу? y/n");
+                        String choice1 = scanner.nextLine();
 
-                    System.out.println("Удалить еще одну позадачу? y/n");
-                    String choice1 = scanner.nextLine();
-
-                    switch (choice1) {
-                        case "y" -> System.out.println();
-                        case "n" -> cycle = false;
-                        default -> {
-                            cycle = false;
-                            System.out.println("Неверный ввод");
+                        switch (choice1) {
+                            case "y" -> System.out.println();
+                            case "n" -> cycle = false;
+                            default -> {
+                                cycle = false;
+                                System.out.println("Неверный ввод");
+                            }
                         }
                     }
+
                 }
             }
             case 3 -> {

@@ -1,57 +1,33 @@
 package main;
 
 import util.TaskProgress;;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 public class SubTask extends Task{
+    TaskProgress taskProgress;
 
-    SubTask(String name, int id) {
-        super(name, id);
+    private SubTask(String name, int id, TaskProgress taskProgress) {
+        this.id = Main.setId();
+        this.taskProgress = TaskProgress.NEW;
     }
 
     public SubTask setSubTasks() {
-
         Scanner scanner = new Scanner(System.in);
-        boolean cycle = true;
 
         System.out.println("Введи название подзадачи");
-        while (cycle) {
-            String nameOfSubTask = scanner.nextLine();
-            if (!(subTaskHash.isEmpty())) {
-                for (String name : subTaskHash.keySet()) {
-                    if (name.equals(nameOfSubTask)) {
-                        System.out.println("Такая подзадача уже существует! \n");
-                    } else {
-                        subTaskHash.put(nameOfSubTask, TaskProgress.NEW);
-                        break;
-                    }
-                }
-            } else {
-                subTaskHash.put(nameOfSubTask, TaskProgress.NEW);
-            }
-            System.out.println("Добавить еще одну подзадачу? y/n");
-            switch (scanner.nextLine()) {
-                case "y" -> System.out.println("Введите название");
-                case "n" -> cycle = false;
-                default -> {
-                    System.out.println("Некорректный ввод. Добавть подзадачу можно в менеджере задач");
-                    cycle = false;
-                }
-            }
-        }
+        String name = scanner.nextLine();
 
-        return
+        return new SubTask(name, id, taskProgress);
     }
 
     public SubTask() {}
 
-    @Override
-    public String toString() {
-         return subTaskHash.toString();
+    public void setTaskProgress(TaskProgress taskProgress) {
+        this.taskProgress = taskProgress;
     }
 
-    public HashMap<String, TaskProgress> getSubTaskHash() {
-        return subTaskHash;
+    public TaskProgress getTaskProgress() {
+        return taskProgress;
     }
 }
