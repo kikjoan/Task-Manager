@@ -8,7 +8,7 @@ import java.util.*;
 // реализовать сохранение, добавить возможность удалять и добавлять подзадачи, реализовать историю
 
 public class Main {
-    static protected int id = 1;
+    static protected final int id = 1;
     static private boolean programStatus = true;
     static protected HashMap<Integer, Object> tasks = new HashMap<>();
 
@@ -84,10 +84,10 @@ public class Main {
                 System.out.println("3.Открыть менеджер задач");
                 System.out.println("4.Завершить программу");
                 switch (scanner.nextInt()) {
-                    case 1 -> defaultTaskManager.getDefault().getTypeOfTask();   // Добавить новую задачу
-                    case 2 -> defaultTaskManager.getDefault().getAllTasks(tasks);     //получить список задач
-                    case 3 -> new Main().getTaskMenu();     // открыть менеджер задач
-                    case 4 -> programStatus = false;        // закрыть прогу
+                    case 1 -> defaultTaskManager.getDefault().getTypeOfTask();
+                    case 2 -> defaultTaskManager.getDefault().getAllTasks(tasks);
+                    case 3 -> new Main().getTaskMenu();
+                    case 4 -> programStatus = false;
                 }
             }
         } catch (InputMismatchException e) {
@@ -125,15 +125,16 @@ public class Main {
     }
 
     static Integer setId() {
+        int idForTasks = 1;
         boolean cycle = true;
         while (cycle){
-            if (tasks.containsKey(id)){
-                id++;
+            if (tasks.containsKey(idForTasks)){
+                idForTasks++;
             } else {
                 cycle = false;
             }
         }
-        return id;
+        return idForTasks;
     }
 }
 

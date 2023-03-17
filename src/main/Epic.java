@@ -23,28 +23,31 @@ public class Epic extends Task {
         name = scanner.nextLine();
         System.out.println("Введите описание: ");
         description = scanner.nextLine();
+        addSubTask();
 
         Main.tasks.put(id, (new Epic(name, description, false, true, id, subTasksList)));
     }
 
     public void addSubTask() {
         Scanner scanner = new Scanner(System.in);
+        SubTask subTask = new SubTask();
 
-        subTasksList.add(new SubTask().setSubTasks());
+        subTasksList.add(subTask.setSubTasks());
 
         boolean cycle = true;
         while (cycle) {
             System.out.println("Добавить еще одну подзадачу? y/n");
             switch (scanner.nextLine()) {
-                case "y" -> subTasksList.add(new SubTask().setSubTasks());
+                case "y" -> subTasksList.add(subTask.setSubTasks());
                 case "n" -> cycle = false;
                 default -> {
                     System.out.println("Некорректный ввод. Добавть подзадачу можно в менеджере задач");
-                    cycle =false;
+                    cycle = false;
                 }
             }
-            System.out.println("Эпик - " + getName() + " записан с позадачами :" + getNamesOfSubTasks().toString());
         }
+        System.out.println("Эпик - " + getName() + " записан с позадачами :" + getNamesOfSubTasks().toString() + "\n");
+
     }
 
     public List<String> getNamesOfSubTasks() {
@@ -64,8 +67,17 @@ public class Epic extends Task {
                 "Подзадачи - '" + getNamesOfSubTasks().toString() + "'";
     }
 
-    public List<SubTask> getSubTask() {
+    public List<SubTask> getSubTasksList() {
         return subTasksList;
+    }
+
+    public SubTask getSubTask(String name) {
+        for (SubTask subTask : subTasksList) {
+            if(subTask.getName().equals(name)) {
+                return subTask;
+            }
+        }
+        return null;
     }
 
     @Override

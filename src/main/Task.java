@@ -25,7 +25,7 @@ public class Task {
         name = scanner.nextLine();
         System.out.println("Введите описание: ");
         description = scanner.nextLine();
-        System.out.println();
+        System.out.println("Записана новая задача - " + name + "\n");
 
         Main.tasks.put(id, (new Task(name, description, false, false, id)));
     }

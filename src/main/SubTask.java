@@ -1,15 +1,15 @@
 package main;
 
 import util.TaskProgress;;
-import java.util.List;
 import java.util.Scanner;
 
 public class SubTask extends Task{
-    TaskProgress taskProgress;
+    TaskProgress taskProgress = TaskProgress.NEW;
 
     private SubTask(String name, int id, TaskProgress taskProgress) {
+        super(name,id);
         this.id = Main.setId();
-        this.taskProgress = TaskProgress.NEW;
+        this.taskProgress = taskProgress;
     }
 
     public SubTask setSubTasks() {
@@ -29,5 +29,9 @@ public class SubTask extends Task{
 
     public TaskProgress getTaskProgress() {
         return taskProgress;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
