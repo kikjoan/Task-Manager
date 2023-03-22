@@ -1,15 +1,20 @@
 package util.taskManager;
 
-import java.util.HashMap;
+import main.Epic;
+import main.Task;
 
-interface TaskManager {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+interface TaskManager <E extends Task> {
 
     void getTypeOfTask();
-    void getAllTasks(HashMap<Integer, Object> tasks);
-    void getTaskById(HashMap<Integer, Object> tasks);
+    <E extends Task> void getAllTasks(List <E> eList);
+    void getTaskById();
 
-    void deleteAllTask(HashMap<Integer, Object> tasks);
-    void updateTaskStatus(HashMap<Integer, Object> tasks);
-    void deleteTaskById(HashMap<Integer, Object> tasks);
+    void deleteAllTask();
+    void updateTaskStatus();
+    void deleteTaskById();
 
 }

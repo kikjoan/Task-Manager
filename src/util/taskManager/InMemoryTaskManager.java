@@ -3,11 +3,11 @@ package util.taskManager;
 import main.*;
 import util.TaskProgress;
 
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
-public class InMemoryTaskManager implements TaskManager{
+public class InMemoryTaskManager implements TaskManager <Task> {
+
+    Main main = new Main();
 
     public void getTypeOfTask() {
         boolean cycle = true;
@@ -35,25 +35,51 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     @Override
-    public void getAllTasks(HashMap<Integer, Object> tasks) {
-        if (tasks.isEmpty()) {
-            System.out.println("Нет задач! \n");
+    public <E extends Task> void getAllTasks(List<E> eList) {
+        List<String> namesOfAllSubtasks = new ArrayList<>();
+        List<String> namesOfAllEpic = new ArrayList<>();
+
+        boolean b = eList == main.getEpicList();
+        if (b) {
+            for (E e : eList) {
+                Epic epic = (Epic) e;
+                namesOfAllEpic.add(epic.getName() + " - " + epic.getId());
+                namesOfAllSubtasks.addAll(epic.getNamesOfSubTasks());
+            }
+
+            if (namesOfAllSubtasks.isEmpty()) {
+                System.out.println("Список эпиков пуст");
+                System.out.println("Список подзадач пуст");
+            } else {
+                System.out.println("Список эпиков: " + namesOfAllEpic);
+                System.out.println("Список подзадач: " + namesOfAllSubtasks);
+            }
+
+        } else {
+            for (E e : eList) {
+                Task task = (Task) e;
+                namesOfAllEpic.add(task.getName() + " - " + task.getId());
+            }
+            if (namesOfAllEpic.isEmpty()) {
+                System.out.println("Список задач пуст");
+            } else {
+                System.out.println("Список задач: " + namesOfAllEpic);
+            }
         }
-        tasks.forEach((id, task) -> {
-            System.out.println(task.toString());
-        });
     }
 
     @Override
-    public void deleteAllTask(HashMap<Integer, Object> tasks) {
+    public void deleteAllTask() {
         Scanner scanner = new Scanner(System.in);
         boolean cycle = true;
         System.out.println("Ты уверен, что хочешь удалить все задачи? y/n");
         while (cycle) {
             switch (scanner.nextLine()) {
                 case "y" -> {
-                    tasks.clear();
+                    main.getEpicList().clear();
+                    main.getTaskList().clear();
                     cycle = false;
+                    System.out.println("Все задачи удалены! \n");
                 }
                 case "n" -> cycle = false;
                 default -> System.out.println("Ожидается y/n");
@@ -61,70 +87,90 @@ public class InMemoryTaskManager implements TaskManager{
         }
     }
 
-
     @Override
-    public void deleteTaskById(HashMap<Integer, Object> tasks) {
+    public void deleteTaskById() {
         Scanner scanner = new Scanner(System.in);
         Scanner scanner1 = new Scanner(System.in);
+
+        getAllTasks(main.getTaskList());
+        getAllTasks(main.getEpicList());
         System.out.println("Введите id задачи: ");
         int id = scanner.nextInt();
-        if (tasks.containsKey(id)) {
-            System.out.println("Ты уверен, что хочешь удалить задачу " + tasks.get(id) + "? y/n");
-            boolean cycle = true;
-            while (cycle) {
-                String choice = scanner1.nextLine();
-                switch (choice) {
-                    case "y" -> {
-                        System.out.println("Задача " + tasks.get(id) + " удалена \n");
-                        tasks.remove(id);
-                        cycle = false;
+
+        if(!(main.getAvailability(id) == null)) {
+            if (main.getAvailability(id) instanceof SubTask subTask) {
+                for (Epic epic : main.getEpicList()) {
+                    if (epic.getSubTasksList().size() <= 1 && epic.getSubTasksList().contains(subTask)) {
+                        System.out.println("Эпик - " + epic.getName() + " имеет только одну подзадачу" +
+                                epic.getNamesOfSubTasks() + "она не может быть удалена");
+                    } else if (epic.getSubTasksList().contains(subTask)) {
+                        System.out.println("Подзадача - " + subTask.getName() + " - " + subTask.getId() + " удалена");
+                        epic.getSubTasksList().remove(main.getAvailability(id));
                     }
-                    case "n" -> {
-                        System.out.println("Задача " + tasks.get(id) + " не удалена \n");
-                        cycle = false;
-                    }
-                    default -> System.out.println("Неизвестная команда. Ожидаю y/n");
                 }
+            } else if (main.getAvailability(id) instanceof Epic epic) {
+                System.out.println("Эпик - " + epic.getName() + " - " + epic.getId() + " удален");
+                main.getEpicList().remove(epic);
+            } else if (main.getAvailability(id) != null) {
+                Task task = main.getAvailability(id);
+                System.out.println("Задача - " + task.getName() + " - " + task.getId() + " удалена");
+                main.getTaskList().remove(task);
             }
         } else {
-            System.out.println("Задача с таким id не найдена \n");
+            System.out.println("Задачи под таким id нет");
         }
     }
 
     @Override
-    public void getTaskById(HashMap<Integer, Object> tasks) {
+    public void getTaskById() {
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите id задачи: ");
         int id = scanner.nextInt();
-        if (tasks.containsKey(id)) {
-            System.out.println(tasks.get(id).toString() + "\n");
+
+        if (!(main.getAvailability(id) == null)) {
+            main.getAvailability(id).toString();
         } else {
-            System.out.println("Задача с таким id не найдена \n");
+            System.out.println("Под id = " + id + " нет ничего \n");
         }
     }
 
     @Override
-    public void updateTaskStatus(HashMap<Integer, Object> tasks) {
+    public void updateTaskStatus() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите id задачи, которую нужно обновить: ");
-        getAllTasks(tasks);
+        getAllTasks(main.getTaskList());
+        getAllTasks(main.getEpicList());
 
-        int taskId = scanner.nextInt();
-        Task taskToUpdate = (Task) tasks.get(taskId);
+        int id = scanner.nextInt();
 
-        if (taskToUpdate != null) {
-            if (!taskToUpdate.isEpic()){
-                System.out.println("Текущий статус задачи: " + taskToUpdate.isCompleted());
-                System.out.println("Введите новый статус задачи (true/false): ");
-                boolean newStatus = scanner.nextBoolean();
-                taskToUpdate.setCompleted(newStatus);
-            } else {
-                Epic epicToUpdate = (Epic) tasks.get(taskId);
-                System.out.println("Текущий статус задачи: " + epicToUpdate.isCompleted());
-                setCompleted(epicToUpdate);
+        if (main.getAvailability(id) != null) {
+
+            switch (main.getAvailability(id).getType()) {
+                case "Subtask" -> {
+                    SubTask subTask = (SubTask) main.getAvailability(id);
+                    Epic epic = null;
+
+                    for (Epic e : main.getEpicList()) {
+                        if (e.getSubTasksList().contains(subTask)) {
+                            epic = e;
+                        }
+                    }
+                    editSubTasks(epic);
+                }
+                case "Epic" -> {
+                    Epic epic = (Epic) main.getAvailability(id);
+                    setCompleted(epic);
+                }
+                case "Task" -> {
+                    Task task = main.getAvailability(id);
+                    System.out.println("Текущий статус задачи: " + task.isCompleted());
+                    System.out.println("Введите новый статус задачи (true/false): ");
+                    boolean newStatus = scanner.nextBoolean();
+                    task.setCompleted(newStatus);
+                }
+                default -> System.out.println("Этой ошибки быть не может кста, 21.03.2023 21:02 :)");
             }
-        } else {
-            System.out.println("Задачи с id " + taskId + " не найдено");
         }
     }
 
@@ -135,8 +181,8 @@ public class InMemoryTaskManager implements TaskManager{
         System.out.println("Вот подзадачи данной задачи: " + epic.getNamesOfSubTasks().toString());
         while (cycle) {
             System.out.println("Введите название подзадачи, которую нужно изменить");
-            String nameOfSubTask = scanner.nextLine();
-            SubTask subTask= epic.getSubTask(nameOfSubTask);
+            int idOfSubTask = scanner.nextInt();
+            SubTask subTask= epic.getSubTask(idOfSubTask);
 
             if (!(subTask == null)) {
                 System.out.println("Введите новый статус для подзадачи. done/in progress");
@@ -179,14 +225,9 @@ public class InMemoryTaskManager implements TaskManager{
         epic.setCompleted(setCompleted);
     }
 
-    public void editSubTasks(HashMap<Integer, Object> tasks) {
+    public void editSubTasks(Epic epic) {
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите id задачи, которую нужно обновить: ");
-        getAllTasks(tasks);
-        int taskId = scanner.nextInt();
-
-        Epic epicToUpdate = (Epic) tasks.get(taskId);
 
         System.out.println("Выберете действие");
         System.out.println("1. Добавить подзадачу");
@@ -197,21 +238,21 @@ public class InMemoryTaskManager implements TaskManager{
         int choice = scanner.nextInt();
         String returnStringScanner = scanner.nextLine();
         switch (choice) {
-            case 1 -> epicToUpdate.addSubTask();
+            case 1 -> epic.addSubTask();
             case 2 -> {
                 boolean cycle = true;
                 while (cycle) {
-                    System.out.println("Введите название подзадачи, которую хотите удалить");
-                    System.out.println(epicToUpdate.getNamesOfSubTasks().toString());
+                    System.out.println("Введите id подзадачи, которую хотите удалить");
+                    System.out.println(epic.getNamesOfSubTasks().toString());
 
-                    String nameOfSubTask = scanner.nextLine();
-                    SubTask subTask = epicToUpdate.getSubTask(nameOfSubTask);
+                    int idOfSubTask = scanner.nextInt();
+                    SubTask subTask = epic.getSubTask(idOfSubTask);
 
-                    if (epicToUpdate.getNamesOfSubTasks().size() == 1) {
+                    if (epic.getNamesOfSubTasks().size() == 1) {
                         System.out.println("Подзадача одна и удалить ее нельзя");
                     } else if (!(subTask == null)) {
-                        System.out.println( nameOfSubTask + " - удалена");
-                        epicToUpdate.getSubTasksList().remove(subTask);
+                        System.out.println( subTask.getName() + " - удалена");
+                        epic.getSubTasksList().remove(subTask);
                     } else {
                         System.out.println("Позадача с таким именем не найдена");
                     }
@@ -232,20 +273,20 @@ public class InMemoryTaskManager implements TaskManager{
             }
             case 3 -> {
                 System.out.println("Введите название подзадачи, которую хотите изменить");
-                System.out.println(epicToUpdate.getNamesOfSubTasks().toString());
+                System.out.println(epic.getNamesOfSubTasks().toString());
 
                 boolean cycle = true;
                 while (cycle) {
-                    String nameOfSubTask = scanner.nextLine();
-                    SubTask subTask = epicToUpdate.getSubTask(nameOfSubTask);
+                    int idOfSubTask = scanner.nextInt();
+                    SubTask subTask = epic.getSubTask(idOfSubTask);
 
                     if (!(subTask == null)) {
                         System.out.println("Введите новое название");
                         String newName = scanner.nextLine();
 
                         subTask.setName(newName);
-                        System.out.println("Новый список подзадач эпика " + epicToUpdate.getName() + "\n" +
-                                epicToUpdate.getNamesOfSubTasks().toString());
+                        System.out.println("Новый список подзадач эпика " + epic.getName() + "\n" +
+                                epic.getNamesOfSubTasks().toString());
                     } else {
                         System.out.println("Такой подзадачи нет. Возвращаемся в начало");
                     }

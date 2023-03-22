@@ -1,77 +1,43 @@
 package main;
 
+import util.Saver;
 import util.taskManager.InMemoryTaskManager;
 import util.taskManager.Managers;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.*;
-// реализовать сохранение, добавить возможность удалять и добавлять подзадачи, реализовать историю
+//  счетчик для подзадач, когда они реальзуются впервые, реализовать историю
 
-public class Main {
-    static protected final int id = 1;
+public class Main <E extends Task> implements Serializable {
     static private boolean programStatus = true;
-    static protected HashMap<Integer, Object> tasks = new HashMap<>();
+    static protected List<Task> taskList = new ArrayList<>();
+    static protected List<Epic> epicList = new ArrayList<>();
 
     public static void main(String[] args) {
-//        try {
-//            BufferedReader reader = new BufferedReader(new FileReader("tasks.txt"));
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                String[] task = line.split(":");
-//                char c = task[1].charAt(task[1].length() - 1);
-//                char g = '}';
-//                if (g == c){
-//                    HashMap<String, TaskProgress> hashMap = new HashMap<>();
-//                    String [] strings = task[1].split("`");
-//                    strings[5] = strings[5].substring(1,strings[5].length() - 1);
-//                    String[] subTasks = strings[5].split(", ");
-//                    for(String tasks : subTasks) {
-//                       String[] t = tasks.split("=");
-//
-//                       if(TaskProgress.DONE.equals(t)) {
-//                           hashMap.put(t[0],TaskProgress.DONE);
-//                       } else if (t.equals(TaskProgress.IN_PROGRESS)) {
-//                           hashMap.put(t[0],TaskProgress.IN_PROGRESS);
-//                       } else {
-//                           hashMap.put(t[0],TaskProgress.NEW);
-//                       }
-//
-//                    }
-//                    SubTask subTask = new SubTask();
-//                    subTask.subTasks = hashMap;
-//                    Epic epic = new Epic(strings[0],strings[1],Boolean.parseBoolean(strings[2]),
-//                            Boolean.parseBoolean(strings[3]), Integer.parseInt(strings[4]), subTask);
-//                    tasks.put(Integer.parseInt(task[0]), epic);
-//                } else {
-//                    String [] strings = task[1].split("`");
-//                    Task tasq = new Task(strings[0],strings[1],Boolean.parseBoolean(strings[2]),
-//                            Boolean.parseBoolean(strings[3]), Integer.parseInt(strings[4]));
-//                    tasks.put(Integer.parseInt(task[0]), tasq);
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Saver saver = new Saver();
+            if (saver.downloadData("task") == null) {
+                System.out.println("Файл пуст, отдыхаем");
+            } else {
+                taskList = saver.downloadData("task");
+            }
+
+            if (saver.downloadData("epic") == null) {
+                System.out.println("Файл пуст2222222 оттттдыъх");
+            } else {
+                epicList = saver.downloadData("epic");
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         getMainMenu();
-//        try {
-//            FileWriter writer = new FileWriter("tasks.txt");
-//            for (Integer key : tasks.keySet()) {
-//                Task task = (Task) tasks.get(key);
-//                if (!task.isEpic) {
-//                    String line = key + ":" + task.name + "`" + task.description + "`" + task.isCompleted +
-//                            "`" + task.isEpic + "`" + task.id + "\n";
-//                    writer.write(line);
-//                } else {
-//                    Epic epic = (Epic) tasks.get(key);
-//                    String line = key + ":" + epic.name + "`" + epic.description + "`" + epic.isCompleted +
-//                            "`" + epic.isEpic + "`" + epic.id + "`" + epic.subTasks + "\n";
-//                    writer.write(line);
-//                }
-//            }
-//            writer.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            new Saver<>().uploadData(taskList, "task");
+            new Saver<>().uploadData(epicList, "epic");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void getMainMenu() {
@@ -85,7 +51,10 @@ public class Main {
                 System.out.println("4.Завершить программу");
                 switch (scanner.nextInt()) {
                     case 1 -> defaultTaskManager.getDefault().getTypeOfTask();
-                    case 2 -> defaultTaskManager.getDefault().getAllTasks(tasks);
+                    case 2 -> {
+                        defaultTaskManager.getDefault().getAllTasks(taskList);
+                        defaultTaskManager.getDefault().getAllTasks(epicList);
+                    }
                     case 3 -> new Main().getTaskMenu();
                     case 4 -> programStatus = false;
                 }
@@ -105,16 +74,15 @@ public class Main {
             while (cycle) {
                 System.out.println("1.Удалить все задачи");
                 System.out.println("2.Найти задачу по id");
-                System.out.println("3.Обновить статус задачи");
+                System.out.println("3.Обновить статус задачи, изменить подзадачу");
                 System.out.println("4.Удалить задачу по id");
                 System.out.println("5.Изиенить, удалить подзадачу");
                 System.out.println("6.Вернуться в основоное меню");
                 switch (scanner.nextInt()) {
-                    case 1 -> defaultTaskManager.getDefault().deleteAllTask(tasks);
-                    case 2 -> defaultTaskManager.getDefault().getTaskById(tasks);
-                    case 3 -> defaultTaskManager.getDefault().updateTaskStatus(tasks);
-                    case 4 -> defaultTaskManager.getDefault().deleteTaskById(tasks);
-                    case 5 -> defaultTaskManager.getDefault().editSubTasks(tasks);
+                    case 1 -> defaultTaskManager.getDefault().deleteAllTask(); // work
+                    case 2 -> defaultTaskManager.getDefault().getTaskById();
+                    case 3 -> defaultTaskManager.getDefault().updateTaskStatus();
+                    case 4 -> defaultTaskManager.getDefault().deleteTaskById();
                     case 6 -> cycle = false;
                 }
             }
@@ -124,17 +92,89 @@ public class Main {
         }
     }
 
-    static Integer setId() {
-        int idForTasks = 1;
-        boolean cycle = true;
-        while (cycle){
-            if (tasks.containsKey(idForTasks)){
-                idForTasks++;
-            } else {
-                cycle = false;
+    public boolean checkForDuplicate(String name) {
+
+        List<String> namesList = new ArrayList<>();
+
+        for(Epic epic : epicList) {
+            namesList.add(epic.getName());
+            for (SubTask subTask : epic.getSubTasksList()) {
+                namesList.add(subTask.getName());
             }
         }
-        return idForTasks;
+
+        for (Task task : taskList) {
+            namesList.add(task.getName());
+        }
+
+        if (namesList.contains(name)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static Integer setId() {
+        int i = 1;
+        List<Integer> ids = new ArrayList<>();
+
+        if (!taskList.isEmpty()) {
+            for (Task task : taskList) {
+                if (!ids.contains(task.getId())) {
+                    ids.add(task.getId());
+                }
+            }
+        }
+
+        if (!epicList.isEmpty()) {
+            for (Epic epic : epicList) {
+
+                for (SubTask subTask : epic.subTasksList) {
+                    if (!ids.contains(subTask.getId())) {
+                        ids.add(subTask.getId());
+                    }
+                }
+                if(!ids.contains(epic.getId())) {
+                    ids.add(epic.getId());
+                }
+            }
+        }
+
+        while (ids.contains(i)) {
+            i++;
+        }
+        System.out.println(ids);
+        ids.add(i);
+        return i;
+    }
+
+    public Task getAvailability(int id) {
+
+        for (Epic epic : epicList) {
+            if (epic.getId() == id) {
+                return epic;
+            } else {
+                for (SubTask subTask : epic.subTasksList) {
+                    if (subTask.getId() == id) {
+                        return subTask;
+                    }
+                }
+            }
+        }
+
+        for (Task task : taskList) {
+            if (task.getId() == id) {
+                return task;
+            }
+        }
+        return null;
+    }
+
+    public static List<Task> getTaskList() {
+        return taskList;
+    }
+
+    public static List<Epic> getEpicList() {
+        return epicList;
     }
 }
 
