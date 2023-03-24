@@ -54,4 +54,35 @@ public class Saver <E extends Task>{
         }
         return null;
     }
+    public static void uploadHistory(Integer[] ids) throws FileNotFoundException {
+        FileOutputStream fos = new FileOutputStream("history.ser");
+
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(ids);
+            oos.close();
+            fos.close();
+            System.out.printf("Serialized data is saved in history.ser \n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Integer[] downloadHistory() throws FileNotFoundException {
+        Integer[] id = new Integer[10];
+        FileInputStream fis = new FileInputStream("history.ser");
+        try {
+            if (fis.available() > 0) {
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                id = (Integer[]) ois.readObject();
+                ois.close();
+            }
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        return id;
+    }
 }

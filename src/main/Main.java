@@ -1,13 +1,14 @@
 package main;
 
 import util.Saver;
+import util.historyManager.HistoryManager;
+import util.historyManager.InMemoryHistoryManager;
 import util.taskManager.InMemoryTaskManager;
 import util.taskManager.Managers;
 
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.*;
-//  счетчик для подзадач, когда они реальзуются впервые, реализовать историю
 
 public class Main <E extends Task> implements Serializable {
     static private boolean programStatus = true;
@@ -17,24 +18,21 @@ public class Main <E extends Task> implements Serializable {
     public static void main(String[] args) {
         try {
             Saver saver = new Saver();
-            if (saver.downloadData("task") == null) {
-                System.out.println("Файл пуст, отдыхаем");
-            } else {
-                taskList = saver.downloadData("task");
-            }
+            taskList = saver.downloadData("task");
+            epicList = saver.downloadData("epic");
+            InMemoryHistoryManager.setHistoryOfChoiceIds(saver.downloadHistory());
 
-            if (saver.downloadData("epic") == null) {
-                System.out.println("Файл пуст2222222 оттттдыъх");
-            } else {
-                epicList = saver.downloadData("epic");
-            }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+
         getMainMenu();
+
         try {
-            new Saver<>().uploadData(taskList, "task");
-            new Saver<>().uploadData(epicList, "epic");
+            Saver saver = new Saver();
+            saver.uploadData(taskList, "task");
+            saver.uploadData(epicList, "epic");
+            saver.uploadHistory(InMemoryHistoryManager.getHistoryOfChoiceIds());
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -76,13 +74,14 @@ public class Main <E extends Task> implements Serializable {
                 System.out.println("2.Найти задачу по id");
                 System.out.println("3.Обновить статус задачи, изменить подзадачу");
                 System.out.println("4.Удалить задачу по id");
-                System.out.println("5.Изиенить, удалить подзадачу");
+                System.out.println("5.История выбора id");
                 System.out.println("6.Вернуться в основоное меню");
                 switch (scanner.nextInt()) {
                     case 1 -> defaultTaskManager.getDefault().deleteAllTask(); // work
-                    case 2 -> defaultTaskManager.getDefault().getTaskById();
-                    case 3 -> defaultTaskManager.getDefault().updateTaskStatus();
-                    case 4 -> defaultTaskManager.getDefault().deleteTaskById();
+                    case 2 -> defaultTaskManager.getDefault().getTaskById(); //work
+                    case 3 -> defaultTaskManager.getDefault().updateTaskStatus(); //semi work
+                    case 4 -> defaultTaskManager.getDefault().deleteTaskById(); // work
+                    case 5 -> System.out.println(new InMemoryHistoryManager().toString());
                     case 6 -> cycle = false;
                 }
             }

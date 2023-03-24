@@ -2,6 +2,8 @@ package util.taskManager;
 
 import main.*;
 import util.TaskProgress;
+import util.historyManager.HistoryManager;
+import util.historyManager.InMemoryHistoryManager;
 
 import java.util.*;
 
@@ -34,8 +36,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         }
     }
 
-    @Override
-    public <E extends Task> void getAllTasks(List<E> eList) {
+    private <E extends Task> void getAllTasksForChoice(List<E> eList) {
         List<String> namesOfAllSubtasks = new ArrayList<>();
         List<String> namesOfAllEpic = new ArrayList<>();
 
@@ -69,6 +70,23 @@ public class InMemoryTaskManager implements TaskManager <Task> {
     }
 
     @Override
+    public <E extends Task> void getAllTasks(List<E> eList) {
+
+        boolean b = eList == main.getEpicList();
+        if (b) {
+            for (E e : eList) {
+                Epic epic = (Epic) e;
+                System.out.println(epic.toString());
+            }
+        } else {
+            for (E e : eList) {
+                Task task = (Task) e;
+                System.out.println(task.toString());
+            }
+        }
+    }
+
+    @Override
     public void deleteAllTask() {
         Scanner scanner = new Scanner(System.in);
         boolean cycle = true;
@@ -92,17 +110,18 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         Scanner scanner = new Scanner(System.in);
         Scanner scanner1 = new Scanner(System.in);
 
-        getAllTasks(main.getTaskList());
-        getAllTasks(main.getEpicList());
+        getAllTasksForChoice(main.getTaskList());
+        getAllTasksForChoice(main.getEpicList());
         System.out.println("Введите id задачи: ");
         int id = scanner.nextInt();
 
         if(!(main.getAvailability(id) == null)) {
+            InMemoryHistoryManager.checkIn(id);
             if (main.getAvailability(id) instanceof SubTask subTask) {
                 for (Epic epic : main.getEpicList()) {
                     if (epic.getSubTasksList().size() <= 1 && epic.getSubTasksList().contains(subTask)) {
-                        System.out.println("Эпик - " + epic.getName() + " имеет только одну подзадачу" +
-                                epic.getNamesOfSubTasks() + "она не может быть удалена");
+                        System.out.println("Эпик - " + epic.getName() + " имеет только одну подзадачу " +
+                                epic.getNamesOfSubTasks() + "> она не может быть удалена");
                     } else if (epic.getSubTasksList().contains(subTask)) {
                         System.out.println("Подзадача - " + subTask.getName() + " - " + subTask.getId() + " удалена");
                         epic.getSubTasksList().remove(main.getAvailability(id));
@@ -129,7 +148,8 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         int id = scanner.nextInt();
 
         if (!(main.getAvailability(id) == null)) {
-            main.getAvailability(id).toString();
+            InMemoryHistoryManager.checkIn(id);
+            System.out.println(main.getAvailability(id).toString());
         } else {
             System.out.println("Под id = " + id + " нет ничего \n");
         }
@@ -139,12 +159,15 @@ public class InMemoryTaskManager implements TaskManager <Task> {
     public void updateTaskStatus() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите id задачи, которую нужно обновить: ");
-        getAllTasks(main.getTaskList());
-        getAllTasks(main.getEpicList());
+        System.out.println("Выбрать эпик - попсть в пункт изменения подзадач этого эпика");
+        System.out.println("Выбрать поздадачу - попасть в пункт изменения всех подзадач эпика(удалить, добавить)");
+        getAllTasksForChoice(main.getTaskList());
+        getAllTasksForChoice(main.getEpicList());
 
         int id = scanner.nextInt();
 
         if (main.getAvailability(id) != null) {
+            InMemoryHistoryManager.checkIn(id);
 
             switch (main.getAvailability(id).getType()) {
                 case "Subtask" -> {
@@ -171,6 +194,8 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                 }
                 default -> System.out.println("Этой ошибки быть не может кста, 21.03.2023 21:02 :)");
             }
+        } else {
+            System.out.println("Нет задачи под таким id");
         }
     }
 
@@ -180,10 +205,13 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Вот подзадачи данной задачи: " + epic.getNamesOfSubTasks().toString());
         while (cycle) {
-            System.out.println("Введите название подзадачи, которую нужно изменить");
+            System.out.println("Введите id, которую нужно изменить");
             int idOfSubTask = scanner.nextInt();
+            InMemoryHistoryManager.checkIn(idOfSubTask);
+
             SubTask subTask= epic.getSubTask(idOfSubTask);
 
+            scanner.nextLine();
             if (!(subTask == null)) {
                 System.out.println("Введите новый статус для подзадачи. done/in progress");
                 String status = scanner.nextLine();
@@ -246,6 +274,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                     System.out.println(epic.getNamesOfSubTasks().toString());
 
                     int idOfSubTask = scanner.nextInt();
+                    InMemoryHistoryManager.checkIn(idOfSubTask);
                     SubTask subTask = epic.getSubTask(idOfSubTask);
 
                     if (epic.getNamesOfSubTasks().size() == 1) {
@@ -259,10 +288,11 @@ public class InMemoryTaskManager implements TaskManager <Task> {
 
 
                     System.out.println("Удалить еще одну позадачу? y/n");
+                    String returnStringScanner1 = scanner.nextLine();
                     String choice1 = scanner.nextLine();
 
                     switch (choice1) {
-                        case "y" -> System.out.println();
+                        case "y" -> editSubTasks(epic);
                         case "n" -> cycle = false;
                         default -> {
                             cycle = false;
@@ -272,12 +302,14 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                 }
             }
             case 3 -> {
-                System.out.println("Введите название подзадачи, которую хотите изменить");
+                System.out.println("Введите id подзадачи, которую хотите изменить");
                 System.out.println(epic.getNamesOfSubTasks().toString());
 
                 boolean cycle = true;
                 while (cycle) {
                     int idOfSubTask = scanner.nextInt();
+                    InMemoryHistoryManager.checkIn(idOfSubTask);
+                    scanner.nextLine();
                     SubTask subTask = epic.getSubTask(idOfSubTask);
 
                     if (!(subTask == null)) {
@@ -295,7 +327,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                     String choice1 = scanner.nextLine();
 
                     switch (choice1) {
-                        case "y" -> System.out.println();
+                        case "y" -> editSubTasks(epic);
                         case "n" -> cycle = false;
                         default -> {
                             cycle = false;
