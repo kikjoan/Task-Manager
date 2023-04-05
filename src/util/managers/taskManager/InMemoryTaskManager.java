@@ -1,15 +1,18 @@
-package util.taskManager;
+package util.managers.taskManager;
 
 import main.*;
 import util.TaskProgress;
-import util.historyManager.HistoryManager;
-import util.historyManager.InMemoryHistoryManager;
+import util.managers.historyManager.InMemoryHistoryManager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Scanner;
 
 public class InMemoryTaskManager implements TaskManager <Task> {
 
-    Main main = new Main();
+    private final InMemoryHistoryManager historyManager = Main.getDefaultHistoryManager();
+    private final Main main = new Main();
 
     public void getTypeOfTask() {
         boolean cycle = true;
@@ -36,7 +39,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         }
     }
 
-    private <E extends Task> void getAllTasksForChoice(List<E> eList) {
+    private <E extends Task> void getAllTasksForChoice(List<E> eList) { //
         List<String> namesOfAllSubtasks = new ArrayList<>();
         List<String> namesOfAllEpic = new ArrayList<>();
 
@@ -72,8 +75,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
     @Override
     public <E extends Task> void getAllTasks(List<E> eList) {
 
-        boolean b = eList == main.getEpicList();
-        if (b) {
+        if (eList == main.getEpicList()) {
             for (E e : eList) {
                 Epic epic = (Epic) e;
                 System.out.println(epic.toString());
@@ -96,6 +98,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                 case "y" -> {
                     main.getEpicList().clear();
                     main.getTaskList().clear();
+                    historyManager.clear();
                     cycle = false;
                     System.out.println("Все задачи удалены! \n");
                 }
@@ -115,8 +118,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         System.out.println("Введите id задачи: ");
         int id = scanner.nextInt();
 
-        if(!(main.getAvailability(id) == null)) {
-            InMemoryHistoryManager.checkIn(id);
+        if(main.getAvailability(id) != null) {
             if (main.getAvailability(id) instanceof SubTask subTask) {
                 for (Epic epic : main.getEpicList()) {
                     if (epic.getSubTasksList().size() <= 1 && epic.getSubTasksList().contains(subTask)) {
@@ -124,15 +126,21 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                                 epic.getNamesOfSubTasks() + "> она не может быть удалена");
                     } else if (epic.getSubTasksList().contains(subTask)) {
                         System.out.println("Подзадача - " + subTask.getName() + " - " + subTask.getId() + " удалена");
+                        historyManager.remove(id);
                         epic.getSubTasksList().remove(main.getAvailability(id));
                     }
                 }
             } else if (main.getAvailability(id) instanceof Epic epic) {
                 System.out.println("Эпик - " + epic.getName() + " - " + epic.getId() + " удален");
+                historyManager.remove(id);
+                for (SubTask subTask : epic.getSubTasksList()) {
+                    historyManager.remove(subTask.getId());
+                }
                 main.getEpicList().remove(epic);
             } else if (main.getAvailability(id) != null) {
                 Task task = main.getAvailability(id);
                 System.out.println("Задача - " + task.getName() + " - " + task.getId() + " удалена");
+                historyManager.remove(id);
                 main.getTaskList().remove(task);
             }
         } else {
@@ -146,9 +154,8 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Введите id задачи: ");
         int id = scanner.nextInt();
-
-        if (!(main.getAvailability(id) == null)) {
-            InMemoryHistoryManager.checkIn(id);
+        if (main.getAvailability(id) != null) {
+            historyManager.add(main.getAvailability(id));
             System.out.println(main.getAvailability(id).toString());
         } else {
             System.out.println("Под id = " + id + " нет ничего \n");
@@ -167,13 +174,11 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         int id = scanner.nextInt();
 
         if (main.getAvailability(id) != null) {
-            InMemoryHistoryManager.checkIn(id);
 
             switch (main.getAvailability(id).getType()) {
                 case "Subtask" -> {
                     SubTask subTask = (SubTask) main.getAvailability(id);
                     Epic epic = null;
-
                     for (Epic e : main.getEpicList()) {
                         if (e.getSubTasksList().contains(subTask)) {
                             epic = e;
@@ -184,6 +189,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                 case "Epic" -> {
                     Epic epic = (Epic) main.getAvailability(id);
                     setCompleted(epic);
+                    historyManager.add(epic);
                 }
                 case "Task" -> {
                     Task task = main.getAvailability(id);
@@ -191,6 +197,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                     System.out.println("Введите новый статус задачи (true/false): ");
                     boolean newStatus = scanner.nextBoolean();
                     task.setCompleted(newStatus);
+                    historyManager.add(task);
                 }
                 default -> System.out.println("Этой ошибки быть не может кста, 21.03.2023 21:02 :)");
             }
@@ -207,7 +214,6 @@ public class InMemoryTaskManager implements TaskManager <Task> {
         while (cycle) {
             System.out.println("Введите id, которую нужно изменить");
             int idOfSubTask = scanner.nextInt();
-            InMemoryHistoryManager.checkIn(idOfSubTask);
 
             SubTask subTask= epic.getSubTask(idOfSubTask);
 
@@ -215,6 +221,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
             if (!(subTask == null)) {
                 System.out.println("Введите новый статус для подзадачи. done/in progress");
                 String status = scanner.nextLine();
+                historyManager.add(subTask);
                 if (status.equals("done")) {
                     subTask.setTaskProgress(TaskProgress.DONE);
                     System.out.println("Терерь позадача " + subTask.getName() + " имеет статус Done \n");
@@ -274,7 +281,6 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                     System.out.println(epic.getNamesOfSubTasks().toString());
 
                     int idOfSubTask = scanner.nextInt();
-                    InMemoryHistoryManager.checkIn(idOfSubTask);
                     SubTask subTask = epic.getSubTask(idOfSubTask);
 
                     if (epic.getNamesOfSubTasks().size() == 1) {
@@ -282,6 +288,7 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                     } else if (!(subTask == null)) {
                         System.out.println( subTask.getName() + " - удалена");
                         epic.getSubTasksList().remove(subTask);
+                        historyManager.remove(idOfSubTask);
                     } else {
                         System.out.println("Позадача с таким именем не найдена");
                     }
@@ -308,17 +315,17 @@ public class InMemoryTaskManager implements TaskManager <Task> {
                 boolean cycle = true;
                 while (cycle) {
                     int idOfSubTask = scanner.nextInt();
-                    InMemoryHistoryManager.checkIn(idOfSubTask);
                     scanner.nextLine();
                     SubTask subTask = epic.getSubTask(idOfSubTask);
 
-                    if (!(subTask == null)) {
+                    if (subTask != null) {
                         System.out.println("Введите новое название");
                         String newName = scanner.nextLine();
 
                         subTask.setName(newName);
                         System.out.println("Новый список подзадач эпика " + epic.getName() + "\n" +
                                 epic.getNamesOfSubTasks().toString());
+                        historyManager.add(subTask);
                     } else {
                         System.out.println("Такой подзадачи нет. Возвращаемся в начало");
                     }

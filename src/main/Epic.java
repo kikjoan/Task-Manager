@@ -26,7 +26,7 @@ public class Epic extends Task {
             description = scanner.nextLine();
             addSubTask();
 
-            Main.epicList.add(new Epic(name, description, false, true, id, "Epic", subTasksList));
+            Main.getEpicList().add(new Epic(name, description, false, true, id, "Epic", subTasksList));
         } else {
             System.out.println("Задача или эпик с названием - " + name + " уже существует \n");
         }

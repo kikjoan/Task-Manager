@@ -34,7 +34,7 @@ public class Task implements Serializable{
             description = scanner.nextLine();
             System.out.println("Записана новая задача - " + name + "\n");
 
-            Main.taskList.add(new Task(name, description, false, false, id, "Task"));
+            Main.getTaskList().add(new Task(name, description, false, false, id, "Task"));
         } else {
             System.out.println("Задача или эпик с названием - " + name + " уже существует \n");
         }
