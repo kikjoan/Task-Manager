@@ -4,10 +4,11 @@ import main.Task;
 import util.managers.historyManager.HistoryManager;
 import util.managers.historyManager.MyLinkedList;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.HashMap;
 
-public class InMemoryHistoryManager implements HistoryManager <Task> {
+public class InMemoryHistoryManager implements HistoryManager<Task> {
 
     protected static MyLinkedList<Object> mll = new MyLinkedList<>();
     protected static HashMap<Integer,MyLinkedList.Nodes<Object>> nm = new HashMap<>();
@@ -43,5 +44,20 @@ public class InMemoryHistoryManager implements HistoryManager <Task> {
     @Override
     public List<Integer> getHistory() {
         return mll.getTasks();
+    }
+
+    public static MyLinkedList<Object> getMll() {
+        return mll;
+    }
+    public static HashMap<Integer, MyLinkedList.Nodes<Object>> getNm() {
+        return nm;
+    }
+
+    public static void setMll(MyLinkedList<Object> mll) {
+        InMemoryHistoryManager.mll = mll;
+    }
+
+    public static void setNm(HashMap<Integer, MyLinkedList.Nodes<Object>> nm) {
+        InMemoryHistoryManager.nm = nm;
     }
 }

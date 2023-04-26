@@ -1,12 +1,13 @@
 package util.managers.historyManager;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MyLinkedList <T> extends LinkedList<Integer> {
 
-    public static class Nodes<E> {
+    public static class Nodes<E> implements Serializable {
         public E data;
         public Nodes<E> next;
         public Nodes<E> prev;
@@ -22,7 +23,7 @@ public class MyLinkedList <T> extends LinkedList<Integer> {
     private Nodes<T> tail;
     private int index = 0;
 
-    public Nodes<T> linkLast(T t){
+    public Nodes<T> linkLast(T t) {
         final Nodes<T> oldHead = head;
         final Nodes<T> newHead = new Nodes<>(t, null, oldHead);
         head = newHead;

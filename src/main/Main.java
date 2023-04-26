@@ -1,11 +1,9 @@
 package main;
 
-import util.Saver;
-import util.managers.taskManager.Managers;
+
 import util.managers.historyManager.*;
 import util.managers.taskManager.*;
 
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -16,26 +14,13 @@ public class Main <E extends Task> implements Serializable {
     private static List<Task> taskList = new ArrayList<>();
     private static List<Epic> epicList = new ArrayList<>();
     private static List<Integer> ids = new ArrayList<>();
-
     private static final InMemoryHistoryManager defaultHistoryManager = new InMemoryHistoryManager();
-    private static final InMemoryTaskManager defaultTaskManager = new Managers<>().defaultManager();
+    private static final FileBackedTaskManager defaultTaskManager = new FileBackedTaskManager();
 
     public static void main(String[] args) {
-        try {
-            Saver saver = new Saver();
-            taskList = Optional.ofNullable(saver.downloadData("task")).orElse(new ArrayList<>());
-            epicList = Optional.ofNullable(saver.downloadData("epic")).orElse(new ArrayList<>());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        defaultTaskManager.load();
         getAllIds();
         getMainMenu();
-        try {
-            new Saver<>().uploadData(taskList, "task");
-            new Saver<>().uploadData(epicList, "epic");
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static void getMainMenu() {
@@ -174,6 +159,14 @@ public class Main <E extends Task> implements Serializable {
 
     public static List<Epic> getEpicList() {
         return epicList;
+    }
+
+    public static void setTaskList(List<Task> taskList) {
+        Main.taskList = taskList;
+    }
+
+    public static void setEpicList(List<Epic> epicList) {
+        Main.epicList = epicList;
     }
 
     public static InMemoryHistoryManager getDefaultHistoryManager() {

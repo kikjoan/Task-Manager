@@ -1,7 +1,6 @@
 package util.managers.historyManager;
 
 import main.Task;
-
 import java.util.List;
 
 public interface HistoryManager <T extends Task> {
